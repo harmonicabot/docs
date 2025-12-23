@@ -1,80 +1,96 @@
 ---
 title: "Quickstart"
-description: "Start building awesome documentation in minutes"
+description: "Get started with Harmonica in minutes"
 ---
 
-## Get started in three steps
+## Welcome to Harmonica!
 
-Get your documentation site running locally and make your first customization.
+This quick guide will help you get started whether you're creating a session or participating in one.
 
-### Step 1: Set up your local environment
+## Are you a participant or host?
 
-<AccordionGroup>
-  <Accordion icon="copy" title="Clone your docs locally">
-    During the onboarding process, you created a GitHub repository with your docs content if you didn't already have one. You can find a link to this repository in your [dashboard](https://dashboard.mintlify.com).
-    
-    To clone the repository locally so that you can make and preview changes to your docs, follow the [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) guide in the GitHub docs.
-  </Accordion>
-  <Accordion icon="rectangle-terminal" title="Start the preview server">
-    1. Install the Mintlify CLI: `npm i -g mint`
-    2. Navigate to your docs directory and run: `mint dev`
-    3. Open `http://localhost:3000` to see your docs live!
-    
-    <Tip>Your preview updates automatically as you edit files.</Tip>
-  </Accordion>
-</AccordionGroup>
+<Columns cols={2}>
+  <Card
+    title="I'm a participant"
+    icon="users"
+    href="/guides/participants/participating-in-sessions"
+  >
+    Learn how to join a session and contribute to discussions.
+  </Card>
+  <Card
+    title="I'm creating a session"
+    icon="user-gear"
+    href="/guides/creators/creating-sessions"
+  >
+    Learn how to create sessions, invite participants, and manage results.
+  </Card>
+</Columns>
 
-### Step 2: Deploy your changes
+## Quick start for participants
 
-<AccordionGroup>
-  <Accordion icon="github" title="Install our GitHub app">
-    Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
-    
-    Our GitHub app automatically deploys your changes to your docs site, so you don't need to manage deployments yourself.
-</Accordion>
-<Accordion icon="palette" title="Update your site name and colors">
-    For a first change, let's update the name and colors of your docs site.
+<Steps>
+  <Step title="Receive an invitation">
+    You'll receive an invitation link to join a Harmonica session. This may come via email, message, or shared link.
+  </Step>
+  
+  <Step title="Click the invitation link">
+    Open the link in your browser. You may need to sign in or create an account if you don't have one yet.
+  </Step>
+  
+  <Step title="Start chatting">
+    Once in the session, you can start chatting with the AI assistant. Share your thoughts, answer questions, and contribute to the discussion.
+  </Step>
+  
+  <Step title="Review results">
+    After the session, you can view summaries and insights generated from all participants' contributions.
+  </Step>
+</Steps>
 
-    1. Open `docs.json` in your editor.
-    2. Change the `"name"` field to your project name.
-    3. Update the `"colors"` to match your brand.
-    4. Save and see your changes instantly at `http://localhost:3000`.
+## Quick start for session creators
 
-    <Tip>Try changing the primary color to see an immediate difference!</Tip>
-  </Accordion>
-</AccordionGroup>
-
-### Step 3: Go live
-
-<Accordion icon="rocket" title="Publish your docs">
-  1. Commit and push your changes.
-  2. Your docs will update and be live in moments!
-</Accordion>
+<Steps>
+  <Step title="Sign in to Harmonica">
+    Go to [harmonica.chat](https://harmonica.chat) and sign in to your account.
+  </Step>
+  
+  <Step title="Create a session">
+    On your dashboard, click "Create Session" or use the input field to describe what you want to find out. You can also browse templates for common use cases.
+  </Step>
+  
+  <Step title="Configure your session">
+    Set up your session details:
+    - Enter a topic or question
+    - Add context or background information
+    - Set goals for the session
+    - Choose visibility settings
+  </Step>
+  
+  <Step title="Invite participants">
+    Share the session link with participants. You can invite them via email, link sharing, or by adding them directly.
+  </Step>
+  
+  <Step title="Monitor and review">
+    Watch as participants join and contribute. After the session, review the synthesized summaries and insights.
+  </Step>
+</Steps>
 
 ## Next steps
 
-Now that you have your docs running, explore these key features:
-
 <CardGroup cols={2}>
-
-<Card title="Write Content" icon="pen-to-square" href="/essentials/markdown">
-  Learn MDX syntax and start writing your documentation.
-</Card>
-
-<Card title="Customize style" icon="palette" href="/essentials/settings">
-  Make your docs match your brand perfectly.
-</Card>
-
-<Card title="Add code examples" icon="square-code" href="/essentials/code">
-  Include syntax-highlighted code blocks.
-</Card>
-
-<Card title="API documentation" icon="code" href="/api-reference/introduction">
-  Auto-generate API docs from OpenAPI specs.
-</Card>
-
+  <Card title="Participating in sessions" icon="users" href="/guides/participants/participating-in-sessions">
+    Detailed guide for participants
+  </Card>
+  <Card title="Creating sessions" icon="user-gear" href="/guides/creators/creating-sessions">
+    Detailed guide for session creators
+  </Card>
+  <Card title="Managing projects" icon="folder" href="/guides/creators/managing-projects">
+    Learn about organizing sessions into projects
+  </Card>
+  <Card title="FAQ" icon="circle-question" href="/faq">
+    Find answers to common questions
+  </Card>
 </CardGroup>
 
-<Note>
-  **Need help?** See our [full documentation](https://mintlify.com/docs) or join our [community](https://mintlify.com/community).
-</Note>
+<Tip>
+  Need help? Contact us at [hello@harmonica.chat](mailto:hello@harmonica.chat) or reach out on [Telegram](https://t.me/harmonica_support).
+</Tip>
