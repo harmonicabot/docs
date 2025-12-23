@@ -3,9 +3,9 @@
   "theme": "mint",
   "name": "Harmonica",
   "colors": {
-    "primary": "#4A90E2",
-    "light": "#6BA3E8",
-    "dark": "#357ABD"
+    "primary": "#1C1917",
+    "light": "#44403C",
+    "dark": "#0C0A09"
   },
   "favicon": "/favicon.svg",
   "navigation": {
@@ -41,7 +41,7 @@
       "anchors": [
         {
           "anchor": "Harmonica Chat",
-          "href": "https://harmonica.chat",
+          "href": "https://app.harmonica.chat",
           "icon": "message"
         }
       ]
@@ -61,7 +61,7 @@
     "primary": {
       "type": "button",
       "label": "Open Harmonica",
-      "href": "https://harmonica.chat"
+      "href": "https://app.harmonica.chat"
     }
   },
   "contextual": {
