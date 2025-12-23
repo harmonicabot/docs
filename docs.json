@@ -4,7 +4,7 @@
   "name": "Harmonica",
   "colors": {
     "primary": "#1C1917",
-    "light": "#44403C",
+    "light": "#FFFFFF",
     "dark": "#0C0A09"
   },
   "favicon": "/favicon.svg",
@@ -79,5 +79,10 @@
   "footer": {
     "socials": {}
   },
-  "css": "/custom.css"
+  "custom": {
+    "css": ["/custom.css"]
+  },
+  "fonts": {
+    "family": "Instrument Sans"
+  }
 }

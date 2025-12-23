@@ -1,12 +1,10 @@
 /* Custom styles for Harmonica docs */
 
 /* Logo height in navigation - change from h-7 to h-4 */
+#navbar img,
 nav img,
-nav a img,
-[data-testid="logo"] img,
-.mintlify-logo img,
 header img[src*="logo"],
-header a[href="/"] img {
+a[href="/"] img {
   height: 1rem !important; /* h-4 = 1rem = 16px */
   max-height: 1rem !important;
   width: auto !important;
