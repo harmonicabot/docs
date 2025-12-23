@@ -15,64 +15,80 @@ As a session creator, you can set up and manage Harmonica sessions to gather ins
   </Step>
   
   <Step title="Navigate to your dashboard">
-    After signing in, you'll see your dashboard with an overview of your sessions and projects.
+    After signing in, you'll see your dashboard with an overview of your sessions and projects. You'll see a welcome banner with the question "What do you want to find out?"
   </Step>
   
-  <Step title="Create a new session">
+  <Step title="Start creating a session">
     You can create a session in several ways:
-    - Use the "What do you want to find out?" input field on the dashboard
-    - Click "Create Session" button
-    - Browse and use a template for common use cases
+    - Type your objective in the "What do you want to find out?" input field on the dashboard and click "Create"
+    - Click "Get Started" or "Create Session" button
+    - Browse templates by clicking the "Templates" button for common use cases
   </Step>
   
-  <Step title="Configure your session">
-    Set up the key details:
-    - **Topic**: What is this session about?
-    - **Goal**: What do you want to achieve?
-    - **Context**: Any background information participants should know
-    - **Critical information**: Any important constraints or requirements
+  <Step title="Design your session (Multi-step form)">
+    You'll go through a step-by-step process:
+    - **Step 1: Objective** - Summarize what you are trying to achieve through these interviews
+    - **Step 2: Critical to gather** - Specify what kind of information or details you need from participant responses
+    - **Step 3: Context** - Provide background to help the AI understand the purpose of your session (optional)
+    - **Step 4: Session name** - Enter a clear session name that will be shared with participants
+    
+    You can review and edit all fields before proceeding.
   </Step>
   
-  <Step title="Set visibility and options">
-    Configure:
-    - **Public/Private**: Who can see this session
-    - **Visibility settings**: What results are visible to participants
-    - **Cross-pollination**: Whether insights should be shared across sessions
+  <Step title="Refine your session">
+    After completing the form, Harmonica will generate a conversational guide (prompt) for the AI assistant. You can:
+    - Review the generated prompt
+    - Edit and refine it as needed
+    - Generate new versions if you make changes
   </Step>
   
-  <Step title="Save and invite participants">
-    Once configured, save your session and share the invitation link with participants.
+  <Step title="Configure participant questions">
+    Set up a pre-session form that participants will fill out before chatting:
+    - Add custom questions (name, email, or custom fields)
+    - Configure question types (short text, email, multiple choice, etc.)
+    - Set which fields are required
+    - Reorder questions as needed
+  </Step>
+  
+  <Step title="Launch and share">
+    Once everything is configured, launch your session. You'll get a unique session link (format: `/chat?s={sessionId}`) that you can:
+    - Copy and share via email, messaging, or other channels
+    - Generate a QR code for easy sharing
+    - Share directly with participants
   </Step>
 </Steps>
 
 ## Session configuration
 
-### Topic and goal
+### Objective
 
-The **topic** is the main subject of your session. Be clear and specific:
-- ✅ Good: "Gathering feedback on the new product design"
-- ❌ Vague: "Product stuff"
-
-The **goal** defines what you want to achieve:
-- ✅ Good: "Identify the top 3 usability issues users encounter"
+The **objective** summarizes what you are trying to achieve through the interviews. Be clear and specific:
+- ✅ Good: "I want to understand user preferences on our new product features and identify which features are most valuable."
 - ❌ Vague: "Get feedback"
 
-### Context and critical information
+### Critical to gather
 
-**Context** provides background that helps participants understand the situation:
+**Critical to gather** specifies what kind of information or details you need from participant responses:
+- ✅ Good: "Participants should provide examples of their workflows or describe challenges they face when using similar products."
+- ❌ Vague: "Their thoughts"
+
+This helps the AI assistant know what to focus on during conversations with participants.
+
+### Context
+
+**Context** provides background to help the AI understand the purpose of your session (this step is optional):
 - Relevant history or previous discussions
 - Current state of the project or topic
 - Any relevant constraints or considerations
-
-**Critical information** includes must-know details:
-- Deadlines or time constraints
-- Budget limitations
-- Technical requirements
-- Decision-making criteria
+- Company or product background
 
 <Tip>
-  Providing good context helps participants give more relevant and useful responses. Don't assume they know everything you know.
+  Providing good context helps the AI generate a better conversational guide and helps participants give more relevant responses.
 </Tip>
+
+### Session name
+
+Choose a clear, descriptive name that will be shared with participants. This helps them understand what the session is about before they join.
 
 ### Using templates
 
@@ -88,10 +104,19 @@ Browse available templates when creating a session to save time and ensure you'r
 
 ### Sharing the session link
 
-Once your session is created, you'll get a shareable link. You can:
-- Copy the link and share it via email, messaging, or other channels
-- Send invitations directly through Harmonica (if available)
-- Add participants directly to the session
+Once your session is launched, you'll get a unique session link in the format: `/chat?s={sessionId}`. You can:
+- **Copy the link** - Click the "Copy link" button to copy the full URL to your clipboard
+- **Generate QR code** - Click "QR code" to generate a QR code that participants can scan
+- Share via email, messaging, or other channels
+
+The link takes participants directly to the chat interface where they can start their conversation with the AI assistant.
+
+### Participant pre-session form
+
+Before participants start chatting, they'll fill out the pre-session form you configured:
+- Default fields: Name and Email (optional)
+- Custom questions you added during session creation
+- Questions are shown in the order you configured
 
 ### Best practices for invitations
 
