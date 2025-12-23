@@ -78,5 +78,6 @@
   },
   "footer": {
     "socials": {}
-  }
+  },
+  "css": "/custom.css"
 }
