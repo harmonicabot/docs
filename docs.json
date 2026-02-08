@@ -28,10 +28,14 @@
             ]
           },
           {
-            "group": "For session creators",
+            "group": "For hosts",
             "pages": [
-              "guides/creators/creating-sessions",
-              "guides/creators/managing-projects"
+              "guides/hosts/creating-sessions",
+              "guides/hosts/session-results",
+              "guides/hosts/templates",
+              "guides/hosts/session-settings",
+              "guides/hosts/collaboration",
+              "guides/hosts/managing-projects"
             ]
           }
         ]

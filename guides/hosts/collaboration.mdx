@@ -1,0 +1,92 @@
+---
+title: "Collaboration"
+description: "Share sessions and projects with your team"
+---
+
+## Overview
+
+Harmonica supports multi-user collaboration so you can share sessions and projects with team members. This guide covers roles, permissions, and how to share access.
+
+## Roles
+
+Harmonica uses role-based permissions for shared resources:
+
+| Role | Sessions | Projects | Settings |
+|------|----------|----------|----------|
+| **Owner** | Full control | Full control | Can delete |
+| **Admin** | Create, edit, delete | Manage members, edit settings | Full access |
+| **Editor** | Create and edit sessions | Add sessions to project | Limited |
+| **Viewer** | View sessions and results | View project and sessions | Read-only |
+
+The **Owner** is the person who created the session or project. Ownership cannot be transferred.
+
+## Sharing a session
+
+To share a session with a collaborator:
+
+1. Open the session settings
+2. Go to sharing or access settings
+3. Invite a user by email or username
+4. Assign a role (admin, editor, or viewer)
+
+Collaborators will be able to access the session according to their assigned role.
+
+## Sharing a project
+
+Projects (workspaces) can be shared with your team:
+
+1. Open the project settings
+2. Go to member management
+3. Invite users by email or username
+4. Set their permission level
+
+When you share a project, collaborators get access to all sessions within that project according to their role.
+
+<Tip>
+  Use projects to organize related sessions and share them all at once, rather than sharing each session individually.
+</Tip>
+
+## Managing access
+
+### Changing roles
+
+You can change a collaborator's role at any time from the session or project settings. Only owners and admins can modify roles.
+
+### Removing access
+
+To remove a collaborator:
+
+1. Go to the session or project settings
+2. Find the user in the members list
+3. Remove their access
+
+## Best practices
+
+<CardGroup cols={2}>
+  <Card title="Use projects for teams" icon="folder">
+    Organize sessions into projects so team members automatically get access to related sessions.
+  </Card>
+
+  <Card title="Use the right role" icon="shield">
+    Give collaborators the minimum role they need. Viewers for stakeholders, editors for team members, admins for co-hosts.
+  </Card>
+
+  <Card title="Review access regularly" icon="eye">
+    Periodically check who has access to your sessions and projects, especially for sensitive topics.
+  </Card>
+
+  <Card title="Coordinate on active sessions" icon="comments">
+    If multiple editors are managing a session, coordinate to avoid conflicting changes to prompts or settings.
+  </Card>
+</CardGroup>
+
+## Related guides
+
+<CardGroup cols={2}>
+  <Card title="Managing projects" icon="folder" href="/guides/hosts/managing-projects">
+    Organize sessions into projects
+  </Card>
+  <Card title="Session settings" icon="gear" href="/guides/hosts/session-settings">
+    Configure session behavior and sharing
+  </Card>
+</CardGroup>

@@ -1,0 +1,85 @@
+---
+title: "Templates"
+description: "Use pre-built templates to create sessions quickly"
+---
+
+## Overview
+
+Templates provide pre-configured session setups so you can get started quickly without designing a session from scratch. Each template comes with a predefined objective, context, and conversational guide tailored to a specific use case.
+
+## Browsing templates
+
+When creating a new session, click the **Templates** button on the dashboard to browse available templates. Each template shows:
+
+- **Icon** -- A visual identifier for the template category
+- **Name** -- What the template is designed for
+- **Description** -- A brief explanation of the use case
+
+## Using a template
+
+<Steps>
+  <Step title="Select a template">
+    Click on a template to select it. The template's pre-configured fields will be loaded into the session creation form.
+  </Step>
+
+  <Step title="Review and customize">
+    The template pre-fills your session's objective, critical-to-gather information, and context. Review these fields and adjust them to match your specific needs.
+  </Step>
+
+  <Step title="Refine the prompt">
+    The AI-generated conversational guide will be based on the template's defaults. You can edit and refine it just like any other session.
+  </Step>
+
+  <Step title="Configure and launch">
+    Set up your participant questions, then launch and share as usual.
+  </Step>
+</Steps>
+
+<Tip>
+  Templates are starting points -- feel free to modify any field to better fit your situation. The template just saves you from starting with a blank form.
+</Tip>
+
+## Common template types
+
+Harmonica includes templates for a variety of use cases:
+
+- **Product feedback** -- Gather user opinions on features, workflows, or product direction
+- **Team retrospectives** -- Reflect on what went well and what to improve
+- **Research interviews** -- Conduct structured qualitative research
+- **Planning sessions** -- Align a group around goals and next steps
+- **Stakeholder input** -- Collect perspectives from diverse stakeholders
+- **Workshop facilitation** -- Run guided discussions on specific topics
+
+## Chain templates
+
+Chain templates link multiple sessions together into a workflow, where the output of one session feeds into the next.
+
+### How chains work
+
+1. A chain template defines a sequence of sessions (e.g., "Brainstorm" -> "Prioritize" -> "Plan")
+2. When you create a session from a chain template, the first session in the chain is created
+3. After the first session completes, you can continue to the next step in the chain
+4. Results from previous sessions are automatically injected as context into subsequent sessions
+
+### Context flow between sessions
+
+Chain templates configure how results flow between steps:
+
+- **Previous summary** -- The summary from the immediately preceding session is included as context
+- **All summaries** -- Summaries from all preceding sessions are included
+- **Custom** -- A custom configuration defines what context is carried forward
+
+<Note>
+  Chain templates are useful for multi-phase processes where you want participants' input to build on previous rounds of discussion.
+</Note>
+
+## Related guides
+
+<CardGroup cols={2}>
+  <Card title="Creating sessions" icon="plus-circle" href="/guides/hosts/creating-sessions">
+    Full guide to session creation
+  </Card>
+  <Card title="Session results" icon="chart-bar" href="/guides/hosts/session-results">
+    Reviewing and exporting results
+  </Card>
+</CardGroup>

@@ -1,0 +1,113 @@
+---
+title: "Session Settings"
+description: "Configure session behavior, sharing, and invitations"
+---
+
+## Overview
+
+After creating a session, you can adjust its settings at any time. This guide covers the key settings available to hosts.
+
+## Editing the facilitator prompt
+
+The facilitator prompt controls how the AI guides conversations with participants. To edit it:
+
+1. Open your session and go to settings
+2. Click **Edit facilitator prompt**
+3. Modify the instructions using natural language
+4. Save your changes
+
+The updated prompt will apply to all new conversations. Existing conversations that are already in progress will not be affected.
+
+<Warning>
+  Changing the facilitator prompt mid-session may lead to inconsistencies between early and late participants. Consider making prompt changes before sharing the session link.
+</Warning>
+
+## Editing the summary prompt
+
+The summary prompt controls how participant conversations are synthesized. To edit it:
+
+1. Go to the session results page
+2. Click **Edit summary prompt**
+3. Adjust the instructions to change what the summary focuses on or how it's formatted
+4. Save to regenerate the summary
+
+## Session status
+
+Sessions can be toggled between:
+
+- **Active** -- Participants can join and contribute via the session link
+- **Inactive** -- The session link no longer accepts new participants, but existing results remain accessible
+
+This is useful when you want to close a session to new responses without deleting it.
+
+## Visibility settings
+
+Control what participants and collaborators can see:
+
+- Configure which result tabs are visible (summary, responses, chat, etc.)
+- Set whether the session is public or private
+- Control access to the session link
+
+## Sharing and invitations
+
+### Session link
+
+Every session has a unique link in the format `app.harmonica.chat/chat?s={sessionId}`. You can:
+
+- **Copy the link** -- Share it via email, messaging, or any other channel
+- **Generate a QR code** -- Useful for in-person events or printed materials
+
+### Email invitations
+
+You can send session invitations directly from Harmonica:
+
+1. Go to the session's share settings
+2. Enter participant email addresses
+3. Send invitations -- participants will receive an email with a link to join
+
+### Share settings
+
+Configure how the session can be shared:
+
+- Toggle public access on or off
+- Control whether the link can be reshared by participants
+
+## Participant question editor
+
+You can modify the pre-session form questions after creating the session:
+
+- **Add questions** -- Add new fields (short text, email, multiple choice, dropdown)
+- **Edit questions** -- Change question text, type, or options
+- **Reorder questions** -- Drag and drop to change the order
+- **Required fields** -- Mark specific questions as mandatory
+- **Delete questions** -- Remove questions you no longer need
+
+<Note>
+  Changes to pre-session questions will apply to new participants. Existing participant responses are preserved.
+</Note>
+
+## Deleting a session
+
+To delete a session:
+
+1. Open the session settings
+2. Click **Delete session**
+3. Confirm the deletion
+
+<Warning>
+  Deleting a session permanently removes all conversations, responses, and results. This action cannot be undone.
+</Warning>
+
+## Related guides
+
+<CardGroup cols={2}>
+  <Card title="Creating sessions" icon="plus-circle" href="/guides/hosts/creating-sessions">
+    Full guide to session creation
+  </Card>
+  <Card title="Session results" icon="chart-bar" href="/guides/hosts/session-results">
+    Reviewing and exporting results
+  </Card>
+  <Card title="Collaboration" icon="users" href="/guides/hosts/collaboration">
+    Sharing access and managing roles
+  </Card>
+</CardGroup>
