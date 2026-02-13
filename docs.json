@@ -42,6 +42,7 @@
       },
       {
         "tab": "API Reference",
+        "openapi": "api-reference/openapi.yaml",
         "groups": [
           {
             "group": "Overview",
@@ -53,27 +54,13 @@
           {
             "group": "Endpoints",
             "pages": [
-              {
-                "openapi": "GET /me"
-              },
-              {
-                "openapi": "GET /sessions"
-              },
-              {
-                "openapi": "GET /sessions/{id}"
-              },
-              {
-                "openapi": "GET /sessions/{id}/questions"
-              },
-              {
-                "openapi": "GET /sessions/{id}/responses"
-              },
-              {
-                "openapi": "POST /sessions/{id}/responses"
-              },
-              {
-                "openapi": "GET /sessions/{id}/summary"
-              }
+              "GET /me",
+              "GET /sessions",
+              "GET /sessions/{id}",
+              "GET /sessions/{id}/questions",
+              "GET /sessions/{id}/responses",
+              "POST /sessions/{id}/responses",
+              "GET /sessions/{id}/summary"
             ]
           }
         ]
@@ -89,7 +76,6 @@
       ]
     }
   },
-  "openapi": "api-reference/openapi.yaml",
   "logo": {
     "light": "/logo/light.svg",
     "dark": "/logo/dark.svg"
