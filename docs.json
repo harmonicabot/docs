@@ -39,6 +39,44 @@
             ]
           }
         ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "api-reference/introduction",
+              "api-reference/mcp-server"
+            ]
+          },
+          {
+            "group": "Endpoints",
+            "pages": [
+              {
+                "openapi": "GET /me"
+              },
+              {
+                "openapi": "GET /sessions"
+              },
+              {
+                "openapi": "GET /sessions/{id}"
+              },
+              {
+                "openapi": "GET /sessions/{id}/questions"
+              },
+              {
+                "openapi": "GET /sessions/{id}/responses"
+              },
+              {
+                "openapi": "POST /sessions/{id}/responses"
+              },
+              {
+                "openapi": "GET /sessions/{id}/summary"
+              }
+            ]
+          }
+        ]
       }
     ],
     "global": {
@@ -51,6 +89,7 @@
       ]
     }
   },
+  "openapi": "api-reference/openapi.yaml",
   "logo": {
     "light": "/logo/light.svg",
     "dark": "/logo/dark.svg"

@@ -1,33 +1,56 @@
 ---
-title: 'Introduction'
-description: 'Example section for showcasing API endpoints'
+title: "API Reference"
+description: "REST API for programmatic access to Harmonica sessions"
 ---
 
-<Note>
-  If you're not looking to build API reference documentation, you can delete
-  this section by removing the api-reference folder.
-</Note>
+The Harmonica API lets you read session data and submit responses programmatically. Use it to build integrations, chatbots, or connect AI agents via MCP.
 
-## Welcome
+## Base URL
 
-There are two ways to build API documentation: [OpenAPI](https://mintlify.com/docs/api-playground/openapi/setup) and [MDX components](https://mintlify.com/docs/api-playground/mdx/configuration). For the starter kit, we are using the following OpenAPI specification.
-
-<Card
-  title="Plant Store Endpoints"
-  icon="leaf"
-  href="https://github.com/mintlify/starter/blob/main/api-reference/openapi.json"
->
-  View the OpenAPI specification file
-</Card>
+```
+https://app.harmonica.chat/api/v1
+```
 
 ## Authentication
 
-All API endpoints are authenticated using Bearer tokens and picked up from the specification file.
+All requests require an API key passed as a Bearer token:
+
+```bash
+curl https://app.harmonica.chat/api/v1/sessions \
+  -H "Authorization: Bearer hm_live_your_key_here"
+```
+
+### Creating an API key
+
+Generate a key via the API (requires an active browser session):
+
+```bash
+curl -X POST https://app.harmonica.chat/api/v1/api-keys \
+  -H "Content-Type: application/json" \
+  -d '{"name": "My integration"}'
+```
+
+The response includes the full key **once** — store it securely. You'll only see the prefix (`hm_live_xxxx`) after creation.
+
+### Access scope
+
+Your API key inherits your user permissions. You can access sessions you own or participate in, same as the web UI.
+
+## Rate limits
+
+API keys are limited to **100 requests per minute**. Exceeding this returns `429 Too Many Requests` with a `Retry-After` header.
+
+## Error format
+
+All errors follow a consistent structure:
 
 ```json
-"security": [
-  {
-    "bearerAuth": []
+{
+  "error": {
+    "code": "not_found",
+    "message": "Session not found"
   }
-]
+}
 ```
+
+Error codes: `unauthorized`, `forbidden`, `not_found`, `validation_error`, `rate_limited`, `internal_error`.

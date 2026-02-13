@@ -1,0 +1,78 @@
+---
+title: "MCP Server"
+description: "Connect AI agents to Harmonica via Model Context Protocol"
+---
+
+The [Harmonica MCP server](https://github.com/harmonicabot/harmonica-mcp) lets AI agents (Claude Code, Cursor, etc.) read and interact with your deliberation sessions.
+
+## Setup
+
+```bash
+git clone https://github.com/harmonicabot/harmonica-mcp.git
+cd harmonica-mcp
+npm install
+npm run build
+```
+
+## Configuration
+
+Add the server to your AI tool's MCP config:
+
+<CodeGroup>
+
+```json Claude Code (~/.claude.json)
+{
+  "mcpServers": {
+    "harmonica": {
+      "command": "node",
+      "args": ["/path/to/harmonica-mcp/dist/index.js"],
+      "env": {
+        "HARMONICA_API_KEY": "hm_live_your_key_here"
+      }
+    }
+  }
+}
+```
+
+```json Cursor (.cursor/mcp.json)
+{
+  "mcpServers": {
+    "harmonica": {
+      "command": "node",
+      "args": ["/path/to/harmonica-mcp/dist/index.js"],
+      "env": {
+        "HARMONICA_API_KEY": "hm_live_your_key_here"
+      }
+    }
+  }
+}
+```
+
+</CodeGroup>
+
+## Available tools
+
+| Tool | Description |
+|------|-------------|
+| `list_sessions` | List your sessions (filter by status, search by keywords) |
+| `get_session` | Get full details of a session |
+| `get_responses` | Get participant responses |
+| `get_summary` | Get the AI-generated summary |
+| `search_sessions` | Search sessions by topic or goal |
+
+## Example prompts
+
+Once connected, try these prompts with your AI agent:
+
+- *"List my active Harmonica sessions"*
+- *"Show me the summary for session [id]"*
+- *"What did participants say in the remote work session?"*
+- *"Search my sessions about governance"*
+- *"Get the responses from my latest completed session"*
+
+## Environment variables
+
+| Variable | Required | Default |
+|----------|----------|---------|
+| `HARMONICA_API_KEY` | Yes | — |
+| `HARMONICA_API_URL` | No | `https://app.harmonica.chat` |
