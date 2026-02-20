@@ -3,18 +3,17 @@ title: "MCP Server"
 description: "Connect AI agents to Harmonica via Model Context Protocol"
 ---
 
-The [Harmonica MCP server](https://github.com/harmonicabot/harmonica-mcp) lets AI agents (Claude Code, Cursor, etc.) read and interact with your deliberation sessions.
+The [Harmonica MCP server](https://github.com/harmonicabot/harmonica-mcp) lets AI agents create and interact with deliberation sessions. Available on [npm](https://www.npmjs.com/package/harmonica-mcp).
 
 ## Setup
 
-```bash
-git clone https://github.com/harmonicabot/harmonica-mcp.git
-cd harmonica-mcp
-npm install
-npm run build
-```
+### 1. Get an API key
 
-## Configuration
+1. [Sign up for Harmonica](https://app.harmonica.chat) if you haven't already (free)
+2. Go to your [Profile](https://app.harmonica.chat/profile) > **API Keys** > **Generate API Key**
+3. Copy your `hm_live_...` key — it's only shown once
+
+### 2. Configure your AI tool
 
 Add the server to your AI tool's MCP config:
 
@@ -24,8 +23,8 @@ Add the server to your AI tool's MCP config:
 {
   "mcpServers": {
     "harmonica": {
-      "command": "node",
-      "args": ["/path/to/harmonica-mcp/dist/index.js"],
+      "command": "npx",
+      "args": ["-y", "harmonica-mcp"],
       "env": {
         "HARMONICA_API_KEY": "hm_live_your_key_here"
       }
@@ -38,8 +37,22 @@ Add the server to your AI tool's MCP config:
 {
   "mcpServers": {
     "harmonica": {
-      "command": "node",
-      "args": ["/path/to/harmonica-mcp/dist/index.js"],
+      "command": "npx",
+      "args": ["-y", "harmonica-mcp"],
+      "env": {
+        "HARMONICA_API_KEY": "hm_live_your_key_here"
+      }
+    }
+  }
+}
+```
+
+```json Windsurf (~/.codeium/windsurf/mcp_config.json)
+{
+  "mcpServers": {
+    "harmonica": {
+      "command": "npx",
+      "args": ["-y", "harmonica-mcp"],
       "env": {
         "HARMONICA_API_KEY": "hm_live_your_key_here"
       }
@@ -54,6 +67,7 @@ Add the server to your AI tool's MCP config:
 
 | Tool | Description |
 |------|-------------|
+| `create_session` | Create a new deliberation session and get a shareable join URL |
 | `list_sessions` | List your sessions (filter by status, search by keywords) |
 | `get_session` | Get full details of a session |
 | `get_responses` | Get participant responses |
@@ -64,11 +78,21 @@ Add the server to your AI tool's MCP config:
 
 Once connected, try these prompts with your AI agent:
 
+- *"Create a Harmonica session about team retrospective with the goal of reviewing Q1"*
 - *"List my active Harmonica sessions"*
 - *"Show me the summary for session [id]"*
 - *"What did participants say in the remote work session?"*
 - *"Search my sessions about governance"*
-- *"Get the responses from my latest completed session"*
+
+## Claude Code slash command
+
+If you use Claude Code, you can also install the [harmonica-chat](https://github.com/zhiganov/harmonica-chat) slash command for quick session creation:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/zhiganov/harmonica-chat/main/install.sh | bash
+```
+
+Then create sessions with `/create-session "Topic" --goal "Goal"`.
 
 ## Environment variables
 
