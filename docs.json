@@ -55,6 +55,7 @@
             "group": "Endpoints",
             "pages": [
               "GET /me",
+              "POST /sessions",
               "GET /sessions",
               "GET /sessions/public",
               "GET /sessions/{id}",
