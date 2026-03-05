@@ -68,8 +68,10 @@ Add the server to your AI tool's MCP config:
 | Tool | Description |
 |------|-------------|
 | `create_session` | Create a new deliberation session and get a shareable join URL |
+| `update_session` | Update session metadata (topic, goal, context, critical, prompt) |
 | `list_sessions` | List your sessions (filter by status, search by keywords) |
-| `get_session` | Get full details of a session |
+| `get_session` | Get full details of a session (includes facilitation prompt) |
+| `get_questions` | Get pre-session questions (data collection form) |
 | `get_responses` | Get participant responses |
 | `get_summary` | Get the AI-generated summary |
 | `search_sessions` | Search sessions by topic or goal |
@@ -83,6 +85,8 @@ Once connected, try these prompts with your AI agent:
 - *"Show me the summary for session [id]"*
 - *"What did participants say in the remote work session?"*
 - *"Search my sessions about governance"*
+- *"Show me the facilitation prompt for session [id]"*
+- *"Update the prompt for session [id] to be more concise and avoid excessive praise"*
 
 ## Claude Code slash command
 
