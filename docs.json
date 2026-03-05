@@ -59,6 +59,7 @@
               "GET /sessions",
               "GET /sessions/public",
               "GET /sessions/{id}",
+              "PATCH /sessions/{id}",
               "GET /sessions/{id}/questions",
               "GET /sessions/{id}/responses",
               "POST /sessions/{id}/responses",

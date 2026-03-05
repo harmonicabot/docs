@@ -4,7 +4,7 @@ info:
   version: 1.0.0
   description: |
     REST API for the Harmonica structured deliberation platform.
-    Provides read access to sessions and their data, plus response submission for active sessions.
+    Provides access to sessions and their data, including creating, updating, and querying sessions, plus response submission for active sessions.
   contact:
     name: Harmonica
     url: https://harmonica.chat
@@ -45,6 +45,10 @@ components:
         context:
           type: string
           nullable: true
+        prompt:
+          type: string
+          nullable: true
+          description: Custom facilitation prompt for the session's AI facilitator
         status:
           type: string
           enum: [active, completed]
@@ -538,6 +542,57 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Session'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      summary: Update session
+      description: |
+        Update session metadata. At least one field must be provided.
+        Requires editor role or higher on the session.
+      operationId: updateSession
+      tags: [Sessions]
+      parameters:
+        - $ref: '#/components/parameters/sessionId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                topic:
+                  type: string
+                goal:
+                  type: string
+                context:
+                  type: string
+                critical:
+                  type: string
+                prompt:
+                  type: string
+                  description: Custom facilitation prompt for the AI facilitator
+              minProperties: 1
+      responses:
+        '200':
+          description: Updated session
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Session'
+        '400':
+          description: Validation error (no valid fields provided)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: validation_error
+                  message: "No valid fields provided. Allowed fields: topic, goal, context, critical, prompt"
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
