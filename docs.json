@@ -64,7 +64,9 @@
               "GET /sessions/{id}/responses",
               "POST /sessions/{id}/responses",
               "GET /sessions/{id}/session-md",
-              "GET /sessions/{id}/summary"
+              "GET /sessions/{id}/summary",
+              "POST /sessions/{id}/chat",
+              "POST /sessions/{id}/chat/questions"
             ]
           }
         ]
