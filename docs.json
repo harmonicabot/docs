@@ -68,6 +68,14 @@
               "POST /sessions/{id}/chat",
               "POST /sessions/{id}/chat/questions"
             ]
+          },
+          {
+            "group": "Integrations",
+            "pages": [
+              "GET /integrations/telegram/groups",
+              "POST /integrations/telegram/groups",
+              "DELETE /integrations/telegram/groups/{groupId}"
+            ]
           }
         ]
       }
