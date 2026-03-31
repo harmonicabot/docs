@@ -82,15 +82,7 @@
         ]
       }
     ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "Harmonica Chat",
-          "href": "https://app.harmonica.chat",
-          "icon": "message"
-        }
-      ]
-    }
+    "global": {}
   },
   "logo": {
     "light": "/logo/light.svg",
