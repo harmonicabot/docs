@@ -1,0 +1,59 @@
+---
+title: "Data Privacy & Security"
+description: "How Harmonica handles your data, where it's stored, and your options for control"
+---
+
+## Overview
+
+Harmonica is designed for structured conversations that often involve sensitive opinions, organizational feedback, and candid perspectives. We take data privacy seriously.
+
+## Where data is stored
+
+- **Database**: Neon Postgres, hosted in the US (Washington, DC region)
+- **File storage**: Vercel Blob (for uploaded documents)
+- **Authentication**: Auth0
+
+All session data — conversations, summaries, participant responses — is stored in the database. There is no secondary data store or analytics pipeline that copies conversation content.
+
+## Data is NOT used for training
+
+Harmonica does not use your session data to train AI models. Conversations are processed by the configured LLM provider (OpenAI, Anthropic, Google, or your own via [BYOM](/guides/hosts/byom)) to generate facilitation responses and summaries, but the data is not retained by Harmonica for model training purposes.
+
+<Note>
+  Each LLM provider has their own data policies. If this is a concern, consider using [BYOM](/guides/hosts/byom) with a provider whose terms you've reviewed, or use local models via Ollama for fully offline operation.
+</Note>
+
+## Participant anonymity
+
+Hosts can configure sessions to support anonymous participation:
+
+- **Name field can be made optional** — participants can skip it or enter any name
+- **No account required** — participants don't need to create a Harmonica account to join a session
+- **Summaries are aggregated** — AI-generated summaries synthesize themes across participants, not individual attributions
+
+Hosts see individual conversation threads in their dashboard, but can configure visibility settings to control what's shared.
+
+## Open source & self-hosting
+
+Harmonica is open-core under the [AGPL license](https://github.com/harmonicabot/harmonica-web-app):
+
+- **Source code is public** — you can audit exactly how data is handled
+- **Self-hosting is supported** — run Harmonica on your own infrastructure for full data sovereignty
+- **BYOM (Bring Your Own Model)** — use your own AI provider keys so conversation data only flows to providers you control
+
+For organizations with strict data residency or compliance requirements, self-hosting with BYOM and local models (via Ollama) provides a fully self-contained deployment where no data leaves your infrastructure.
+
+## Access control
+
+- **Session-level permissions** — hosts control who can view results (owner, admin, editor, viewer roles)
+- **Project-level sharing** — share access to groups of sessions with team members
+- **API key authentication** — programmatic access uses scoped API keys (`hm_live_` prefix)
+- **Visibility settings** — control whether sessions are public or private, and which result tabs are visible
+
+## Data retention
+
+Session data persists in the database as long as your account is active. Hosts can delete individual sessions from their dashboard. If you need bulk data deletion, contact us at [hello@harmonica.chat](mailto:hello@harmonica.chat).
+
+## Questions?
+
+For specific privacy or compliance questions, reach out to [hello@harmonica.chat](mailto:hello@harmonica.chat) or on [Telegram](https://t.me/harmonica_support).

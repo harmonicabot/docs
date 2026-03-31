@@ -18,7 +18,8 @@
             "pages": [
               "index",
               "quickstart",
-              "faq"
+              "faq",
+              "privacy"
             ]
           },
           {
@@ -35,7 +36,8 @@
               "guides/hosts/templates",
               "guides/hosts/session-settings",
               "guides/hosts/collaboration",
-              "guides/hosts/managing-projects"
+              "guides/hosts/managing-projects",
+              "guides/hosts/byom"
             ]
           }
         ]

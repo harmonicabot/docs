@@ -1,0 +1,82 @@
+---
+title: "Bring Your Own Model (BYOM)"
+description: "Use your own AI API keys to power Harmonica with any supported model"
+---
+
+## Overview
+
+Bring Your Own Model (BYOM) lets you connect your own AI provider API keys to Harmonica. When BYOM is active, your sessions use your own keys instead of Harmonica's — removing usage limits and giving you full control over which models power your facilitation.
+
+## Why use BYOM?
+
+- **No credit limits** — BYOM sessions don't consume your Harmonica balance
+- **Model choice** — pick the exact model for your use case (faster, cheaper, higher quality, or open-source)
+- **Data control** — requests go directly to your chosen provider under your own terms of service
+- **Self-hosting** — combine BYOM with a self-hosted Harmonica instance for fully self-contained deployment
+
+## Supported providers
+
+Harmonica supports API keys from these providers:
+
+| Provider | Example models | Notes |
+|----------|---------------|-------|
+| **OpenAI** | GPT-4o, GPT-4o mini, GPT-5 | Most widely used |
+| **Anthropic** | Claude Sonnet 4.6, Claude Haiku | High quality facilitation |
+| **Google** | Gemini 2.5 Flash, Gemini 3.1 Pro | Good balance of speed and quality |
+| **Ollama** | Llama, Mistral, Qwen | Local models, fully offline |
+| **OpenAI-compatible** | Any provider with an OpenAI-compatible API | Custom base URL supported |
+
+## Setting up BYOM
+
+<Steps>
+  <Step title="Go to Settings">
+    Navigate to **Settings** → **AI Models** tab in your Harmonica dashboard.
+  </Step>
+
+  <Step title="Add an API key">
+    Click **Add API Key** and enter:
+    - **Provider** — select from the supported list, or choose "OpenAI-compatible" for custom endpoints
+    - **API Key** — your key from the provider's dashboard
+    - **Base URL** — auto-filled for standard providers, customizable for self-hosted or compatible APIs
+    - **Name** — a label to help you identify this key
+  </Step>
+
+  <Step title="Select models for each tier">
+    Harmonica uses three model tiers for different tasks:
+    - **Small** — lightweight tasks (e.g., classification, short responses)
+    - **Medium** — main facilitation conversations
+    - **Large** — summaries, synthesis, and complex analysis
+
+    Choose which of your available models to use for each tier.
+  </Step>
+
+  <Step title="Create sessions as usual">
+    Once configured, all new sessions automatically use your models. No other changes needed — the facilitation experience is the same.
+  </Step>
+</Steps>
+
+## Platform models vs BYOM
+
+Even without BYOM, Harmonica provides platform models:
+
+| Model | Provider | Tier | Available on Free plan |
+|-------|----------|------|----------------------|
+| GPT-4o mini | OpenAI | Small | Yes |
+| Gemini 2.5 Flash | Google | Small / Medium / Large | Yes |
+| Apertus 70B | PublicAI (Swiss AI) | Small / Medium | Yes |
+| Claude Sonnet 4.6 | Anthropic | Medium / Large | Pro only |
+| GPT-5 | OpenAI | Medium / Large | Pro only |
+| Gemini 3.1 Pro | Google | Medium / Large | Pro only |
+
+BYOM gives you access to any model from any supported provider, regardless of your Harmonica plan.
+
+## How billing works with BYOM
+
+- **BYOM users pay their AI provider directly** — Harmonica doesn't charge for LLM usage
+- **Session creation doesn't reserve balance** — no credit checks when creating or running sessions
+- **Summary generation skips settlement** — no per-participant costs deducted
+- You still need a Harmonica account (free plan is sufficient with BYOM)
+
+<Tip>
+  BYOM is especially useful for organizations that already have enterprise agreements with AI providers, or for self-hosters who want to run Harmonica with local models via Ollama.
+</Tip>
