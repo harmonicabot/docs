@@ -67,6 +67,7 @@
               "POST /sessions/{id}/responses",
               "GET /sessions/{id}/session-md",
               "GET /sessions/{id}/summary",
+              "POST /sessions/{id}/scratchpad",
               "POST /sessions/{id}/chat",
               "POST /sessions/{id}/chat/questions"
             ]

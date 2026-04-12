@@ -879,6 +879,86 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 
+  /sessions/{id}/scratchpad:
+    post:
+      summary: Seed or update scratchpad
+      description: |
+        Trigger cross-pollination scratchpad seeding or update for a session.
+        The scratchpad tracks themes, emerging consensus, open tensions, and
+        well-covered questions across all participant conversations.
+
+        **Modes:**
+        - `seed` (default): Process all user messages from scratch. Resumes from
+          existing progress if the session was partially seeded.
+        - `update`: Process only new messages since the last update.
+        - `status`: Return current scratchpad state without processing.
+
+        Cross-pollination must be enabled on the session. Requires editor role.
+
+        For large sessions, seeding may take multiple calls (up to 5 minutes per
+        call). Each batch is persisted to the database, so partial progress
+        survives timeouts. Re-call the endpoint to continue.
+      operationId: seedScratchpad
+      tags: [Sessions]
+      parameters:
+        - $ref: '#/components/parameters/sessionId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                mode:
+                  type: string
+                  enum: [seed, update, status]
+                  default: seed
+                  description: Processing mode
+      responses:
+        '200':
+          description: Scratchpad result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [completed, partial, no_data, exists, empty]
+                    description: |
+                      `completed` — all messages processed.
+                      `partial` — timed out, call again to continue.
+                      `no_data` — no user messages in session.
+                      `exists`/`empty` — status mode response.
+                  themes:
+                    type: integer
+                    description: Number of themes identified
+                  participants:
+                    type: integer
+                    description: Number of participants tracked
+                  batches_processed:
+                    type: integer
+                    description: Batches completed in this call
+                  batches_total:
+                    type: integer
+                    description: Total batches needed for remaining messages
+                required: [status, themes, participants]
+        '400':
+          description: Cross-pollination not enabled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: validation_error
+                  message: Cross-pollination is not enabled for this session
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
   /sessions/{id}/chat:
     post:
       summary: Send chat message
