@@ -412,6 +412,74 @@ components:
           description: Direct URL for participants to join the session
       required: [id, topic, goal, status, participant_count, created_at, updated_at, join_url]
 
+    ContextSource:
+      type: object
+      description: A context source attached to a session (file, session snapshot, or MCP server).
+      properties:
+        id:
+          type: string
+          format: uuid
+        session_id:
+          type: string
+          format: uuid
+        source_type:
+          type: string
+          enum: [file, session, mcp]
+        title:
+          type: string
+        position:
+          type: integer
+          description: Sort order within the session (lower = injected earlier in prompt).
+        content_mode:
+          type: string
+          enum: [verbatim, chunked]
+          nullable: true
+          description: |
+            `verbatim` — full text stored in the row.
+            `chunked` — text split and embedded in `session_embeddings` for vector retrieval.
+            `null` for MCP sources (no stored content).
+        source_ref:
+          type: string
+          format: uuid
+          nullable: true
+          description: For `session` sources — the ID of the referenced session.
+        mcp_config:
+          type: object
+          nullable: true
+          description: For `mcp` sources — connection config and cached tool list.
+          properties:
+            url:
+              type: string
+              format: uri
+            bearer:
+              type: string
+              nullable: true
+            tool_allowlist:
+              type: array
+              nullable: true
+              items:
+                type: string
+            cached_tools:
+              type: array
+              items:
+                type: string
+            consecutive_fails:
+              type: integer
+            status:
+              type: string
+              enum: [healthy, degraded, unreachable]
+        token_estimate:
+          type: integer
+          nullable: true
+          description: Estimated token count for verbatim content.
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required: [id, session_id, source_type, title, position, created_at, updated_at]
+
     Error:
       type: object
       properties:
@@ -427,6 +495,7 @@ components:
                 - validation_error
                 - rate_limited
                 - internal_error
+                - unprocessable
             message:
               type: string
           required: [code, message]
@@ -1215,3 +1284,305 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+
+  /sessions/{id}/context-sources:
+    get:
+      summary: List context sources
+      description: |
+        Returns all context sources attached to the session, ordered by position then created_at.
+        No tier requirement — read path is unconditional.
+      operationId: listContextSources
+      tags: [Context Sources]
+      parameters:
+        - $ref: '#/components/parameters/sessionId'
+      responses:
+        '200':
+          description: List of context sources
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [sources]
+                properties:
+                  sources:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ContextSource'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /sessions/{id}/context-sources/session:
+    post:
+      summary: Add a session reference as a context source
+      description: |
+        Snapshot another session's SESSION.md and add it as a context source.
+        The content is captured at add-time (not live). Use `/refresh` to re-snapshot.
+
+        The caller must have at least **viewer** access on the source session.
+        Requires a Pro, LTD, or ENTERPRISE subscription.
+        Maximum 20 sources per session.
+      operationId: addSessionContextSource
+      tags: [Context Sources]
+      parameters:
+        - $ref: '#/components/parameters/sessionId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [source_ref]
+              properties:
+                source_ref:
+                  type: string
+                  format: uuid
+                  description: ID of the session whose SESSION.md to snapshot.
+                title:
+                  type: string
+                  description: |
+                    Human-readable title. Defaults to the source session's topic if omitted.
+      responses:
+        '201':
+          description: Context source created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContextSource'
+        '400':
+          description: Validation error (missing source_ref, source has no SESSION.md)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: Insufficient permissions or tier, or no access to source session
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Source cap reached (20 per session)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /sessions/{id}/context-sources/mcp:
+    post:
+      summary: Add an MCP server as a context source
+      description: |
+        Perform an MCP handshake, enumerate available tools, and register the server
+        as a context source. The tool list is cached in `mcp_config.cached_tools`.
+        Use `/refresh` to re-enumerate tools when the server changes.
+
+        Requires a Pro, LTD, or ENTERPRISE subscription.
+        Maximum 20 sources per session.
+      operationId: addMcpContextSource
+      tags: [Context Sources]
+      parameters:
+        - $ref: '#/components/parameters/sessionId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [url, title]
+              properties:
+                url:
+                  type: string
+                  format: uri
+                  description: SSE endpoint of the MCP server.
+                bearer:
+                  type: string
+                  nullable: true
+                  description: Optional Bearer token for authenticated MCP servers.
+                tool_allowlist:
+                  type: array
+                  nullable: true
+                  items:
+                    type: string
+                  description: |
+                    If provided, only these tools will be used. All listed tools must exist
+                    on the server or the request fails with 400.
+                title:
+                  type: string
+                  description: Human-readable name for this MCP source.
+      responses:
+        '201':
+          description: MCP context source created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContextSource'
+        '400':
+          description: Validation error (missing fields, allowlist mismatch, handshake failure)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: validation_error
+                  message: "MCP server doesn't expose allowlisted tools: missing_tool"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: Insufficient permissions or tier
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Source cap reached (20 per session)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /sessions/{id}/context-sources/{source_id}:
+    patch:
+      summary: Update a context source
+      description: |
+        Update a context source's title, position, or mcp_config.
+        At least one field must be provided.
+        Requires a Pro, LTD, or ENTERPRISE subscription.
+      operationId: updateContextSource
+      tags: [Context Sources]
+      parameters:
+        - $ref: '#/components/parameters/sessionId'
+        - name: source_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Context source ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  description: New display title.
+                position:
+                  type: integer
+                  description: New sort position (lower = earlier in prompt).
+                mcp_config:
+                  type: object
+                  description: Partial MCP config override (advanced use).
+      responses:
+        '200':
+          description: Updated context source row
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContextSource'
+        '400':
+          description: Validation error (no fields to update, invalid body)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: Insufficient permissions or tier
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      summary: Delete a context source
+      description: |
+        Permanently delete a context source.
+        Cascades to associated `session_embeddings` rows (file chunks).
+        Requires a Pro, LTD, or ENTERPRISE subscription.
+      operationId: deleteContextSource
+      tags: [Context Sources]
+      parameters:
+        - $ref: '#/components/parameters/sessionId'
+        - name: source_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Context source ID
+      responses:
+        '204':
+          description: Deleted (no body)
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: Insufficient permissions or tier
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /sessions/{id}/context-sources/{source_id}/refresh:
+    post:
+      summary: Refresh a context source
+      description: |
+        Re-fetch content for a session or MCP context source.
+        - **session** sources: re-snapshot the source session's SESSION.md.
+        - **mcp** sources: re-handshake the MCP server and update `cached_tools`.
+        - **file** sources: not supported — re-upload via POST /file instead (returns 422).
+
+        Requires a Pro, LTD, or ENTERPRISE subscription.
+      operationId: refreshContextSource
+      tags: [Context Sources]
+      parameters:
+        - $ref: '#/components/parameters/sessionId'
+        - name: source_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Context source ID
+      responses:
+        '200':
+          description: Updated context source row
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContextSource'
+        '400':
+          description: Ingest failure (e.g. source session no longer has SESSION.md)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: Insufficient permissions or tier
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          description: File sources cannot be refreshed — re-upload required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: unprocessable
+                  message: Re-upload to refresh file content
