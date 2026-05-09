@@ -1113,3 +1113,105 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '404':
           $ref: '#/components/responses/NotFound'
+
+  /sessions/{id}/context-sources/file:
+    post:
+      summary: Upload a file context source
+      description: |
+        Upload a text file (Markdown or plain text) as a context source for the session.
+        Small files (≤ 50 KB) are stored verbatim in the source row. Larger files are chunked
+        and embedded into `session_embeddings` for vector search.
+
+        Allowed MIME types: `text/markdown`, `text/plain`.
+        Maximum file size: 4 MB (Vercel route body limit).
+        Maximum sources per session: 20.
+
+        Requires a Pro, LTD, or ENTERPRISE subscription.
+      operationId: uploadContextSourceFile
+      tags: [Context Sources]
+      parameters:
+        - $ref: '#/components/parameters/sessionId'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: File to upload. Allowed types: text/plain, text/markdown.
+                title:
+                  type: string
+                  description: |
+                    Human-readable title for the source. Defaults to the file name if omitted.
+      responses:
+        '201':
+          description: Context source created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                    description: Unique ID of the new context source row.
+                  session_id:
+                    type: string
+                    format: uuid
+                  source_type:
+                    type: string
+                    enum: [file]
+                  title:
+                    type: string
+                  content_mode:
+                    type: string
+                    enum: [verbatim, chunked]
+                    description: |
+                      `verbatim` — full text stored in the row; `chunked` — text split and
+                      embedded in `session_embeddings` for vector retrieval.
+                  created_at:
+                    type: string
+                    format: date-time
+                required: [id, session_id, source_type, title, content_mode, created_at]
+        '400':
+          description: Validation error (missing file, oversized, unsupported MIME type)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: validation_error
+                  message: 'Unsupported MIME type: application/pdf. Allowed: text/plain, text/markdown'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: Insufficient permissions or tier
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: forbidden
+                  message: Context sources require a Pro subscription
+        '422':
+          description: Source cap reached (20 per session)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: validation_error
+                  message: Source cap reached (20 per session)
+        '500':
+          description: Ingestion or embedding failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
