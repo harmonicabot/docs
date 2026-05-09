@@ -251,7 +251,10 @@ components:
           description: Critical question or constraint
         prompt:
           type: string
-          description: Custom facilitation prompt. If omitted, a prompt is auto-generated from topic, goal, context, and critical fields.
+          description: |
+            Custom facilitation prompt. If omitted, a prompt is auto-generated server-side
+            from the topic, goal, context, and critical fields. Falls back to a basic
+            facilitation prompt if generation fails.
         template_id:
           type: string
           description: ID of a template to use
@@ -508,7 +511,8 @@ paths:
       summary: Create session
       description: |
         Creates a new deliberation session owned by the authenticated user.
-        If `prompt` is omitted, a default facilitation prompt is used.
+        If `prompt` is omitted, a facilitation prompt is auto-generated server-side
+        from the topic, goal, context, and critical fields (with a fallback to a basic prompt).
         Returns the created session with a `join_url` for sharing with participants.
       operationId: createSession
       tags: [Sessions]
