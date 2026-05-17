@@ -1183,6 +1183,125 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 
+  /sessions/{id}/regenerate-facilitation-prompt:
+    post:
+      summary: Regenerate facilitation prompt
+      description: |
+        Re-generates the facilitation prompt and Session design recap from the session's
+        current `topic`, `goal`, `critical`, and `context` fields.
+
+        Returns the proposed values **without persisting** them. The caller should
+        present them for host confirmation, then PATCH `/sessions/{id}` with
+        `prompt`, `prompt_summary`, and `prompt_generated_from` to save.
+
+        Requires **editor** access on the session.
+      operationId: regenerateFacilitationPrompt
+      tags: [Sessions]
+      parameters:
+        - $ref: '#/components/parameters/sessionId'
+      responses:
+        '200':
+          description: Proposed facilitation prompt and recap
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  facilitation_prompt:
+                    type: string
+                    description: Regenerated facilitation prompt text.
+                  prompt_summary:
+                    type: string
+                    description: Short Session design recap derived from the facilitation prompt.
+                  prompt_generated_from:
+                    type: object
+                    description: Snapshot of the session fields used to generate this prompt.
+                    properties:
+                      topic:
+                        type: string
+                      goal:
+                        type: string
+                      critical:
+                        type: string
+                      context:
+                        type: string
+                    required: [topic, goal, critical, context]
+                required: [facilitation_prompt, prompt_summary, prompt_generated_from]
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '502':
+          description: LLM generation failure
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /sessions/{id}/regenerate-welcome:
+    post:
+      summary: Regenerate welcome message and meta description
+      description: |
+        Re-generates the participant-facing `welcome_message` and `meta_description`
+        from the session's current `topic`, `goal`, `critical`, and `context` fields.
+
+        Returns the proposed copy **without persisting** it. The caller should
+        present it for host confirmation, then PATCH `/sessions/{id}` with
+        `welcome_message` and `meta_description` to save.
+
+        Requires **editor** access on the session.
+      operationId: regenerateWelcome
+      tags: [Sessions]
+      parameters:
+        - $ref: '#/components/parameters/sessionId'
+      responses:
+        '200':
+          description: Proposed welcome message and meta description
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  welcome_message:
+                    type: string
+                    description: Participant-facing welcome copy shown on the session landing page.
+                  meta_description:
+                    type: string
+                    description: Short description used for link previews.
+                required: [welcome_message, meta_description]
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '502':
+          description: LLM generation failure
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
   /sessions/{id}/context-sources/file:
     post:
       summary: Upload a file context source
@@ -1211,7 +1330,7 @@ paths:
                 file:
                   type: string
                   format: binary
-                  description: File to upload. Allowed types: text/plain, text/markdown.
+                  description: "File to upload. Allowed types: text/plain, text/markdown."
                 title:
                   type: string
                   description: |
