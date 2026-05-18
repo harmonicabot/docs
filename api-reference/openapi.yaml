@@ -1185,20 +1185,37 @@ paths:
 
   /sessions/{id}/regenerate-facilitation-prompt:
     post:
-      summary: Regenerate facilitation prompt
+      summary: Recompose facilitation prompt
       description: |
-        Re-generates the facilitation prompt and Session design recap from the session's
-        current `topic`, `goal`, `critical`, and `context` fields.
+        Recomposes the facilitation prompt and Session design recap from the
+        session's current layered inputs: the Brief fields (`topic`, `goal`,
+        `critical`, `context`), the host's HARMONICA.md, and the active
+        template's `facilitation_prompt`.
 
-        Returns the proposed values **without persisting** them. The caller should
-        present them for host confirmation, then PATCH `/sessions/{id}` with
-        `prompt`, `prompt_summary`, and `prompt_generated_from` to save.
+        Returns the proposed values **without persisting** them. The caller
+        should present them for host confirmation, then PATCH `/sessions/{id}`
+        with `prompt`, `prompt_summary`, and `prompt_generated_from` to save
+        (and optionally `template_id` + `cross_pollination` on a template
+        switch).
+
+        Pass `?templateId=<id>` to override the session's current
+        `template_id` for the recompose — used by the Template switcher on
+        Session design tab to preview what the prompt would look like with a
+        different template, before the host commits.
 
         Requires **editor** access on the session.
       operationId: regenerateFacilitationPrompt
       tags: [Sessions]
       parameters:
         - $ref: '#/components/parameters/sessionId'
+        - in: query
+          name: templateId
+          required: false
+          schema:
+            type: string
+          description: |
+            Override the session's `template_id` for this recompose. HAR-868 —
+            used by the Template switcher on Session design tab.
       responses:
         '200':
           description: Proposed facilitation prompt and recap
@@ -1226,7 +1243,24 @@ paths:
                       context:
                         type: string
                     required: [topic, goal, critical, context]
-                required: [facilitation_prompt, prompt_summary, prompt_generated_from]
+                  template_id:
+                    type: string
+                    nullable: true
+                    description: The `template_id` the recompose used (session's current, or the `templateId` query override).
+                  cross_pollination_default:
+                    type: boolean
+                    nullable: true
+                    description: |
+                      `cross_pollination_default` on the target template. The
+                      Template switcher surfaces a snap suggestion when this
+                      differs from the session's current `cross_pollination`
+                      setting.
+                required:
+                  - facilitation_prompt
+                  - prompt_summary
+                  - prompt_generated_from
+                  - template_id
+                  - cross_pollination_default
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
