@@ -271,6 +271,14 @@ components:
           type: boolean
           default: false
           description: Enable cross-pollination of ideas between participant threads
+        widgets_enabled:
+          type: boolean
+          default: false
+          description: |
+            Enable AI-emitted Polls and ratings widgets (SingleSelect,
+            MultiSelect, RatingScale, RankingList) during the session. When
+            true, the facilitator may call widget tools mid-conversation to
+            present interactive inputs instead of plain text questions.
         distribution:
           type: array
           items:
