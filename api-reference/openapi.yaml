@@ -279,6 +279,20 @@ components:
             MultiSelect, RatingScale, RankingList) during the session. When
             true, the facilitator may call widget tools mid-conversation to
             present interactive inputs instead of plain text questions.
+        results_visibility:
+          type: string
+          enum: [public, participants, host]
+          default: host
+          description: |
+            Who can see aggregated session results.
+            - `host` (default) — only the session owner can see results.
+            - `participants` — anyone who completed the session can see what
+              others said (drives the end-of-chat "See what others said" link).
+            - `public` — anyone with the session URL can see results without
+              participating.
+            MCP / harmonica-chat callers typically pass `participants` since
+            programmatic and Telegram-distributed sessions usually want
+            distributed visibility.
         distribution:
           type: array
           items:
