@@ -1293,7 +1293,13 @@ paths:
                 type: object
                 properties:
                   error:
-                    type: string
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        example: payment_required
+                      message:
+                        type: string
                   cost_cents:
                     type: integer
                   balance_cents:
