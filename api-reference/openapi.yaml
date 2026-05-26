@@ -973,6 +973,41 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
+    post:
+      summary: Regenerate session summary
+      description: |
+        Regenerates the AI summary for the session and returns the refreshed
+        summary. Requires editor role or above. May take up to ~90s for sessions
+        with many participants (LARGE-tier synthesis).
+      operationId: regenerateSessionSummary
+      tags: [Sessions]
+      parameters:
+        - $ref: '#/components/parameters/sessionId'
+      responses:
+        '200':
+          description: Regenerated session summary
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  session_id:
+                    type: string
+                    format: uuid
+                  summary:
+                    type: string
+                    nullable: true
+                  generated_at:
+                    type: string
+                    format: date-time
+                    nullable: true
+                required: [session_id, summary]
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
 
   /sessions/{id}/scratchpad:
     post:
