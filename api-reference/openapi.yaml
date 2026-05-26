@@ -1205,6 +1205,104 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 
+  /sessions/{id}/grounding:
+    get:
+      summary: Preview response-grounding cost
+      description: |
+        Returns how many participant responses in the session are grounded vs.
+        ungrounded, and the credit cost (in cents) to ground the remaining ones.
+        No charge, no work performed.
+      operationId: getGroundingPreview
+      tags: [Sessions]
+      parameters:
+        - $ref: '#/components/parameters/sessionId'
+      responses:
+        '200':
+          description: Grounding cost preview
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: integer
+                    description: Total participant responses in the session.
+                  grounded:
+                    type: integer
+                    description: Responses that already have extracted quotes.
+                  ungrounded:
+                    type: integer
+                    description: Responses not yet grounded.
+                  cost_cents:
+                    type: integer
+                    description: Credit cost (cents) to ground all ungrounded responses (10¢ each).
+                required: [total, grounded, ungrounded, cost_cents]
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    post:
+      summary: Ground ungrounded responses
+      description: |
+        Extracts verbatim quotes for every not-yet-grounded participant response
+        and charges the session owner 10¢ per response actually grounded.
+        Idempotent: already-grounded responses are skipped, so a repeat call with
+        nothing new performs no work and no charge. Non-PRO callers receive 402
+        if the owner's balance can't cover the estimate (no work is done).
+      operationId: groundResponses
+      tags: [Sessions]
+      parameters:
+        - $ref: '#/components/parameters/sessionId'
+      responses:
+        '200':
+          description: Grounding result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  grounded:
+                    type: integer
+                    description: Responses grounded by this call.
+                  attempted:
+                    type: integer
+                    description: Ungrounded responses found (some may have failed extraction).
+                  charged_cents:
+                    type: integer
+                    description: Credits charged (cents). 0 on idempotent no-op or charge failure.
+                  balance_after:
+                    type: integer
+                    nullable: true
+                    description: Owner credit balance after the charge.
+                  charge_failed:
+                    type: boolean
+                    description: Present and true if responses were grounded but the charge failed (a rare balance race); quotes are kept.
+                  message:
+                    type: string
+                    description: Present on the idempotent no-op ("All responses already grounded").
+                required: [grounded]
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '402':
+          description: Insufficient credits (non-PRO owner). No responses grounded.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                  cost_cents:
+                    type: integer
+                  balance_cents:
+                    type: integer
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
   /sessions/{id}/regenerate-facilitation-prompt:
     post:
       summary: Recompose facilitation prompt
