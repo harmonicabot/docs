@@ -1900,3 +1900,63 @@ paths:
                 error:
                   code: unprocessable
                   message: Re-upload to refresh file content
+
+  /sessions/{id}/edit-history:
+    get:
+      summary: Get host_db edit history for a session
+      description: HAR-861 — returns revision rows for tracked host_db fields. Editor role required.
+      operationId: getSessionEditHistory
+      tags: [Sessions]
+      parameters:
+        - $ref: '#/components/parameters/sessionId'
+        - in: query
+          name: field
+          schema:
+            type: string
+          description: Filter to a single field (e.g., 'prompt', 'goal').
+      responses:
+        '200':
+          description: revisions + per-field counts
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  revisions:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        field:
+                          type: string
+                        value:
+                          type: string
+                        source:
+                          type: string
+                          enum: [manual_edit, brief_drift_cascade, template_switch, stall_review_apply, create_session]
+                        created_at:
+                          type: string
+                          format: date-time
+                        created_by:
+                          type: [string, 'null']
+                      required: [id, field, value, source, created_at, created_by]
+                  counts:
+                    type: object
+                    additionalProperties:
+                      type: object
+                      properties:
+                        count:
+                          type: integer
+                        last_edited:
+                          type: string
+                          format: date-time
+                      required: [count, last_edited]
+                required: [revisions, counts]
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
