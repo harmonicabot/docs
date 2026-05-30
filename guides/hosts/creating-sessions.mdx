@@ -169,6 +169,53 @@ Additional analysis based on your session goals and the data collected.
 ### Similarity scores
 If enabled, you can see how similar or different participants' responses are.
 
+## Regenerating after edits
+
+After you launch a session, you can keep editing its brief fields — goal, critical information, context, and topic — from the **Brief** tab inside the session overview modal. When those fields drift from what was used to generate the current facilitation prompt, a banner appears offering to regenerate.
+
+### What gets regenerated
+
+Clicking **Regenerate** triggers a full recompose of two prompt layers:
+
+- **Facilitation Approach** — the methodology-specific instructions for the session
+- **Summary Generation** — how participant conversations are synthesized
+
+The recompose uses everything: your current HARMONICA.md, the active methodology template, and the updated brief fields. Before this was introduced, the cascade only used the brief fields and ignored your organizational context and template — brief edits now produce prompts that are fully coherent with your project's standing context.
+
+### Accept vs override
+
+The regenerated layers are returned as a proposal — you review them before they are saved. If the proposal looks right, save it. If you want to adjust the wording, edit it first.
+
+If you have manually customized the Facilitation Approach with specific rules you want to keep, compare the proposal against your current version before saving. The recompose starts fresh from the brief and template; it does not attempt to preserve manual additions.
+
+### Cross-Pollination snap
+
+During regeneration you can optionally include a **Cross-Pollination snap** — a snapshot of the themes and tensions the AI has surfaced from participant conversations so far. Including it makes the new prompt aware of what has already emerged, which is useful when you are adjusting the facilitation direction mid-session based on early responses.
+
+### Full prompt layer details
+
+To see and edit all four prompt layers (HARMONICA.md, Platform Guidelines, Facilitation Approach, Summary Generation) in one place, open the [Session Design](/guides/hosts/session-design) tab in the session overview modal.
+
+## Customising the participant landing
+
+When participants open your session link, they land on a welcome card before the conversation begins. You can control what they see from the **Landing** tab inside the session overview modal.
+
+### What you can set
+
+**Welcome message** — the text shown on the welcome card. Supports markdown: use `[text](https://…)` for clickable links and bare URLs auto-link as well. Aim for a few sentences that set context and encourage participation.
+
+**Link preview description** — the short description shown when your invitation link is shared in Slack, Teams, iMessage, and similar platforms. Keep it under 160 characters.
+
+**Video intro** — an optional video embedded above the welcome card. Paste a YouTube, Google Drive, Loom, or Vimeo URL. A thumbnail chip previews your selection before you save.
+
+### AI-drafted welcome message
+
+When you create a session, Harmonica automatically drafts a welcome message from your brief. You will see it pre-filled when you open the Landing tab. Edit it to your voice, or click **Regenerate AI copy** to produce a new draft. If you have unsaved edits, Harmonica will ask before overwriting them.
+
+### Save
+
+All three fields save together when you click **Save** in the Landing tab's action bar.
+
 ## Organizing sessions into projects
 
 Sessions can be organized into **projects** to:
@@ -222,6 +269,9 @@ See our [Managing Projects](/guides/hosts/managing-projects) guide for more deta
 ## Next steps
 
 <CardGroup cols={2}>
+  <Card title="Session Design" icon="sliders" href="/guides/hosts/session-design">
+    Edit all four prompt layers for a session
+  </Card>
   <Card title="Templates" icon="layout-template" href="/guides/hosts/templates">
     Browse methodology templates and chain templates
   </Card>
@@ -230,9 +280,6 @@ See our [Managing Projects](/guides/hosts/managing-projects) guide for more deta
   </Card>
   <Card title="Managing projects" icon="folder" href="/guides/hosts/managing-projects">
     Organize sessions into projects
-  </Card>
-  <Card title="Session settings" icon="gear" href="/guides/hosts/session-settings">
-    Configure session behavior after launch
   </Card>
 </CardGroup>
 

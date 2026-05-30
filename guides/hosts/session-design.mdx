@@ -1,0 +1,102 @@
+---
+title: "Session Design"
+description: "Edit all four prompt layers that shape how your facilitator runs a session"
+---
+
+## What is Session Design?
+
+Session Design is a panel inside the session overview modal that surfaces every layer of the AI facilitator's instructions in one place. From here you can read, edit, and version each layer — and switch the methodology template without starting over.
+
+To open it: on any session's results page, click the session header or the settings icon to open the session overview modal, then select **Session Design** from the sidebar.
+
+## The four prompt layers
+
+The facilitator's behavior emerges from four stacked layers. They are applied from outermost (most authoritative) to innermost (most specific):
+
+| Layer | What it shapes | Editable here? |
+|-------|---------------|----------------|
+| **HARMONICA.md** | Organizational voice, vocabulary, standing context | Read-only (edit in Settings → Context) |
+| **Platform Guidelines** | Base facilitation rules that apply to every session | Yes |
+| **Facilitation Approach** | Methodology-specific instructions for this session | Yes |
+| **Summary Generation** | How participant responses are synthesized into a summary | Yes |
+
+<Note>
+  HARMONICA.md is shown as a read-only accordion so you can see what organizational context the facilitator is inheriting. To change it, go to **Settings → Context**. See [Project memory](/guides/hosts/project-memory).
+</Note>
+
+### Platform Guidelines
+
+This layer holds rules that govern the facilitator's general behavior — tone, question framing, how it handles off-topic responses, and similar baseline guardrails. Harmonica ships a default set. You can extend or override it here for sessions where you need different defaults.
+
+### Facilitation Approach
+
+This is the most session-specific layer. It contains the instructions for how the facilitator should run this particular conversation — the methodology's protocol, question sequences, and any custom rules you have added. When you apply a finding from the **Review** tab, it appends a new rule to this layer.
+
+### Summary Generation
+
+Controls how the facilitator synthesizes participant conversations into the session summary. Edit this when you want the summary to emphasize particular themes, use a specific structure, or omit certain kinds of content.
+
+## Edit a prompt layer
+
+Each editable layer is an accordion. Expand it to read the current content, then click **Edit** to open the inline editor. Make your changes and click **Save**. The change is recorded in the edit history for that layer.
+
+<Tip>
+  Every save is tracked. Click **History** next to any layer to see a timestamped log of changes — including what triggered each edit (manual edit, template switch, brief regeneration, or a Review-tab suggestion you applied). You can restore any earlier version from the history view. See [Session settings](/guides/hosts/session-settings#prompt-edit-history).
+</Tip>
+
+## Switch the methodology template
+
+The **Template** dropdown at the top of the Session Design panel shows the methodology currently applied to this session.
+
+To switch to a different methodology:
+
+<Steps>
+  <Step title="Open the Template dropdown">
+    In the Session Design panel, click the template selector at the top.
+  </Step>
+
+  <Step title="Choose a new template">
+    Select any available methodology template from the list.
+  </Step>
+
+  <Step title="Confirm the recompose">
+    An alert dialog appears describing what will change. Confirming triggers a full recompose — Harmonica regenerates the Facilitation Approach and Summary Generation layers using the new template's methodology, combined with your current session brief and HARMONICA.md.
+  </Step>
+
+  <Step title="Review the result">
+    The regenerated layers are staged for you to review before they are saved. You can edit them further before confirming.
+  </Step>
+</Steps>
+
+<Warning>
+  Switching templates regenerates the Facilitation Approach and Summary Generation layers. Any custom rules you have manually added to those layers will be replaced. Review the result before saving.
+</Warning>
+
+### Cross-Pollination snap
+
+When switching templates, you can optionally enable the **Cross-Pollination** snap. This attaches a snapshot of the session's current scratchpad themes — topics and tensions the AI has surfaced from prior conversations — as context for the recompose. The new facilitation prompt will be aware of what has already emerged from participants.
+
+This is useful mid-session when you want to shift methodology in response to what you have heard so far.
+
+## Brief drift and regeneration
+
+When you edit the session's core brief fields (goal, critical information, context, topic), Harmonica detects that those fields have drifted from what was used to generate the current facilitation prompt. A banner appears on the session overview offering to regenerate.
+
+The regeneration cascade uses all four layers — your current HARMONICA.md, the active template, and the updated brief fields — to produce a new Facilitation Approach and Summary Generation. See [Regenerating after edits](/guides/hosts/creating-sessions#regenerating-after-edits) for details on when to accept vs override.
+
+## Related guides
+
+<CardGroup cols={2}>
+  <Card title="Project memory" icon="file-text" href="/guides/hosts/project-memory">
+    What HARMONICA.md is and how to edit it
+  </Card>
+  <Card title="Context sources" icon="book-open" href="/guides/hosts/context-sources">
+    Attach files, sessions, and MCP servers to a session
+  </Card>
+  <Card title="Creating sessions" icon="plus-circle" href="/guides/hosts/creating-sessions">
+    How the prompt layers are assembled at creation time
+  </Card>
+  <Card title="Session settings" icon="gear" href="/guides/hosts/session-settings">
+    Prompt edit history and other per-session configuration
+  </Card>
+</CardGroup>

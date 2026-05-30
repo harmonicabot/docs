@@ -1,0 +1,85 @@
+---
+title: "Project memory (HARMONICA.md)"
+description: "Give every session in a project a shared organizational context so the facilitator sounds like you"
+---
+
+## What is HARMONICA.md?
+
+HARMONICA.md is a short markdown document that describes your organization, team, or community to Harmonica. Once set, it is injected into the facilitation prompt of every new session you create — so the AI facilitator arrives already knowing your vocabulary, your decision-making norms, and the context that would otherwise take a paragraph of copy-paste each time.
+
+Think of it as a standing brief for the AI: "Here is who we are and how we work."
+
+<Note>
+  HARMONICA.md is available on Pro, LTD, and Enterprise plans. Free accounts can still run sessions; they just start without this layer.
+</Note>
+
+## Where it lives
+
+Go to **Settings → Context**. The editor on that tab is your HARMONICA.md. Changes you save there take effect on the next session you create — existing sessions are not retroactively affected.
+
+## How it gets seeded
+
+When you complete the onboarding flow after signing up, Harmonica asks you two questions: your role type and your primary use cases. From those answers it generates a starter HARMONICA.md for you — a skeleton with the right headings filled in based on what you described. You are not locked into this draft; edit it freely.
+
+If you skipped onboarding or want to re-run it, the **Settings → Context** tab also has an onboarding re-entry form that updates the seed.
+
+## What to put in it
+
+A good HARMONICA.md typically has three to five short sections:
+
+- **Who you are** — a sentence or two about the team, company, or community
+- **What you do** — the mission or focus area
+- **How you work** — decision-making style, communication norms, meeting culture
+- **Standing context** — things every session should know (ongoing initiatives, terminology, recent decisions)
+
+Keep it under a page. The facilitator reads the whole file on every turn, so a concise document is more effective than a comprehensive one.
+
+## How it flows into sessions
+
+When you create a new session, Harmonica assembles the facilitation prompt from several layers. HARMONICA.md is the outermost layer — it wraps the session-specific goal and approach so the facilitator's voice stays consistent with your organizational context.
+
+The full prompt stack at creation time (outermost to innermost):
+
+1. **HARMONICA.md** — organizational context (this file)
+2. **Platform Guidelines** — base facilitation rules
+3. **Facilitation Approach** — methodology-specific instructions for this session
+4. **Summary Generation** — how to synthesize participant responses
+
+You can inspect and edit all four layers from the **Session Design** tab inside any session. See [Session Design](/guides/hosts/session-design) for details.
+
+## Edit your HARMONICA.md
+
+<Steps>
+  <Step title="Open Settings">
+    Click your account icon in the top right and select **Settings**.
+  </Step>
+
+  <Step title="Go to the Context tab">
+    Select the **Context** tab. Your current HARMONICA.md appears in the editor.
+  </Step>
+
+  <Step title="Edit and save">
+    Update the content. Click **Save** when done. The file has a 10,000-character limit — it is intentionally a concise reference document, not a knowledge base.
+  </Step>
+</Steps>
+
+<Tip>
+  You can use standard markdown in HARMONICA.md — headings, bullet lists, and bold text all render correctly when the facilitator processes them.
+</Tip>
+
+## Related guides
+
+<CardGroup cols={2}>
+  <Card title="Managing projects" icon="folder" href="/guides/hosts/managing-projects">
+    Organize sessions into projects
+  </Card>
+  <Card title="Session Design" icon="sliders" href="/guides/hosts/session-design">
+    Inspect and edit all four prompt layers for a session
+  </Card>
+  <Card title="Creating sessions" icon="plus-circle" href="/guides/hosts/creating-sessions">
+    How HARMONICA.md flows into new sessions
+  </Card>
+  <Card title="Templates" icon="layout-template" href="/guides/hosts/templates">
+    Start from a pre-built methodology
+  </Card>
+</CardGroup>
