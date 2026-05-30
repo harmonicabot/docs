@@ -52,25 +52,12 @@ Harmonica includes templates for a variety of use cases:
 
 ## Chain templates
 
-Chain templates link multiple sessions together into a workflow, where the output of one session feeds into the next.
+Chain templates link multiple sessions together into a workflow, where the output of one step feeds into the next as context. Each step can have its own participant group and, for role-based chains, its own named roles.
 
-### How chains work
-
-1. A chain template defines a sequence of sessions (e.g., "Brainstorm" -> "Prioritize" -> "Plan")
-2. When you create a session from a chain template, the first session in the chain is created
-3. After the first session completes, you can continue to the next step in the chain
-4. Results from previous sessions are automatically injected as context into subsequent sessions
-
-### Context flow between sessions
-
-Chain templates configure how results flow between steps:
-
-- **Previous summary** -- The summary from the immediately preceding session is included as context
-- **All summaries** -- Summaries from all preceding sessions are included
-- **Custom** -- A custom configuration defines what context is carried forward
+See the [Chains guide](/guides/hosts/chains) for a full walkthrough — including role-based participation, context flow, and the Wardley Mapping worked example.
 
 <Note>
-  Chain templates are useful for multi-phase processes where you want participants' input to build on previous rounds of discussion.
+  Chain templates appear in their own section on the Templates page. They launch from there, not from the dashboard's session-creation wizard.
 </Note>
 
 ## Related guides
@@ -78,6 +65,9 @@ Chain templates configure how results flow between steps:
 <CardGroup cols={2}>
   <Card title="Creating sessions" icon="plus-circle" href="/guides/hosts/creating-sessions">
     Full guide to session creation
+  </Card>
+  <Card title="Chains" icon="link" href="/guides/hosts/chains">
+    Multi-step chain templates in depth
   </Card>
   <Card title="Session results" icon="chart-bar" href="/guides/hosts/session-results">
     Reviewing and exporting results
