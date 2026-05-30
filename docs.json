@@ -38,7 +38,7 @@
               "guides/hosts/chains",
               "guides/hosts/widgets",
               "guides/hosts/context-sources",
-              "guides/hosts/project-memory",
+              "guides/hosts/organizational-context",
               "guides/hosts/notifications",
               "guides/hosts/session-settings",
               "guides/hosts/collaboration",
@@ -128,5 +128,11 @@
   },
   "fonts": {
     "family": "Instrument Sans"
-  }
+  },
+  "redirects": [
+    {
+      "source": "/guides/hosts/project-memory",
+      "destination": "/guides/hosts/organizational-context"
+    }
+  ]
 }
