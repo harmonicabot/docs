@@ -502,6 +502,103 @@ components:
           format: date-time
       required: [id, session_id, source_type, title, position, created_at, updated_at]
 
+    SessionKnowledge:
+      type: object
+      description: |
+        Structured, typed knowledge synthesised from a session — decisions,
+        action items, tensions, and atomic claims — each carrying message-ID
+        provenance. Generated after the session summary. Pro feature.
+      properties:
+        decisions:
+          type: array
+          items:
+            type: object
+            properties:
+              label:
+                type: string
+              summary:
+                type: string
+              evidence:
+                type: array
+                description: Source message IDs backing this decision.
+                items:
+                  type: string
+              phase:
+                type: string
+            required: [label, summary, evidence]
+        actions:
+          type: array
+          items:
+            type: object
+            properties:
+              description:
+                type: string
+              owner:
+                type: string
+              due:
+                type: string
+              evidence:
+                type: array
+                items:
+                  type: string
+            required: [description, evidence]
+        tensions:
+          type: array
+          items:
+            type: object
+            properties:
+              summary:
+                type: string
+              sides:
+                type: array
+                minItems: 2
+                items:
+                  type: string
+              evidence:
+                type: array
+                items:
+                  type: string
+            required: [summary, sides, evidence]
+        claims:
+          type: array
+          items:
+            type: object
+            properties:
+              category:
+                type: string
+                enum: [decision, tension, action, open-question, observation, quote, minority-view]
+              text:
+                type: string
+              evidence:
+                type: array
+                items:
+                  type: string
+              phase:
+                type: string
+              strength:
+                type: number
+                minimum: 0
+                maximum: 1
+            required: [category, text, evidence]
+        gaps:
+          type: array
+          description: Areas the session left unresolved (optional).
+          items:
+            type: string
+        metadata:
+          type: object
+          properties:
+            generatedAt:
+              type: integer
+              description: Unix epoch timestamp when the knowledge was generated.
+            model:
+              type: string
+            version:
+              type: integer
+              enum: [1]
+          required: [generatedAt, model, version]
+      required: [decisions, actions, tensions, claims, metadata]
+
     Error:
       type: object
       properties:
@@ -1002,6 +1099,64 @@ paths:
                     format: date-time
                     nullable: true
                 required: [session_id, summary]
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /sessions/{id}/knowledge:
+    post:
+      summary: Generate structured session knowledge
+      description: |
+        Synthesises typed, structured knowledge from a session — decisions,
+        action items, tensions, and atomic claims — each backed by the message
+        IDs it was drawn from. When the session has grounding enabled,
+        pre-extracted verbatim quotes are resolved to their source messages and
+        woven in as provenance.
+
+        The session must already have a summary (call `POST /sessions/{id}/summary`
+        first). The generated knowledge is persisted on the session and returned.
+        Requires **editor** access.
+
+        Pro feature. This exposes the structured-knowledge **data layer** — there
+        is no results-page UI for it yet.
+      operationId: generateSessionKnowledge
+      tags: [Sessions]
+      parameters:
+        - $ref: '#/components/parameters/sessionId'
+      responses:
+        '200':
+          description: Generated (or skipped) session knowledge
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [generated, skipped]
+                    description: '`generated` when knowledge was produced; `skipped` on a no-op.'
+                  knowledge:
+                    description: The generated knowledge, or null when skipped.
+                    oneOf:
+                      - $ref: '#/components/schemas/SessionKnowledge'
+                      - type: 'null'
+                  reason:
+                    type: string
+                    description: Present when `status` is `skipped`.
+                required: [status, knowledge]
+        '400':
+          description: Session has no summary yet
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: validation_error
+                  message: Session has no summary yet — generate summary first
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
