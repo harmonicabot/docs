@@ -63,6 +63,11 @@
             "group": "Endpoints",
             "pages": [
               "GET /me",
+              "GET /templates",
+              "POST /templates",
+              "GET /templates/{id}",
+              "PATCH /templates/{id}",
+              "DELETE /templates/{id}",
               "POST /sessions",
               "GET /sessions",
               "GET /sessions/public",

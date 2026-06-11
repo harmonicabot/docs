@@ -93,6 +93,126 @@ components:
           format: date-time
       required: [id, topic, goal, status, participant_count, created_at, updated_at]
 
+    Template:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        description:
+          type: string
+          nullable: true
+        icon:
+          type: string
+          nullable: true
+        facilitation_prompt:
+          type: string
+          nullable: true
+        default_session_name:
+          type: string
+          nullable: true
+        default_goal:
+          type: string
+          nullable: true
+        default_critical:
+          type: string
+          nullable: true
+        default_context:
+          type: string
+          nullable: true
+        template_type:
+          type: string
+          description: 'single or chain'
+        cross_pollination_default:
+          type: boolean
+        is_public:
+          type: boolean
+        workspace_id:
+          type: string
+          format: uuid
+          nullable: true
+        created_by:
+          type: string
+          nullable: true
+        archived_at:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required: [id, title, template_type, cross_pollination_default, is_public, created_at, updated_at]
+
+    CreateTemplateRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+          nullable: true
+        icon:
+          type: string
+          nullable: true
+        facilitation_prompt:
+          type: string
+          nullable: true
+        default_session_name:
+          type: string
+          nullable: true
+        default_goal:
+          type: string
+          nullable: true
+        default_critical:
+          type: string
+          nullable: true
+        default_context:
+          type: string
+          nullable: true
+        is_public:
+          type: boolean
+          default: false
+        workspace_id:
+          type: string
+          nullable: true
+          description: When set, creates a workspace-scoped template (caller must be a workspace admin).
+      required: [title]
+
+    UpdateTemplateRequest:
+      type: object
+      description: All fields optional; at least one must be provided.
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+          nullable: true
+        icon:
+          type: string
+          nullable: true
+        facilitation_prompt:
+          type: string
+          nullable: true
+        default_session_name:
+          type: string
+          nullable: true
+        default_goal:
+          type: string
+          nullable: true
+        default_critical:
+          type: string
+          nullable: true
+        default_context:
+          type: string
+          nullable: true
+        is_public:
+          type: boolean
+
     PublicSessionListItem:
       type: object
       description: Session object returned by the public discovery endpoint. Extends SessionListItem with a join URL.
@@ -693,6 +813,200 @@ paths:
                 $ref: '#/components/schemas/UserInfo'
         '401':
           $ref: '#/components/responses/Unauthorized'
+
+  /templates:
+    get:
+      summary: List templates
+      description: |
+        Returns templates visible to the authenticated user: public global
+        templates, templates they own, and (when `workspace_id` is provided and
+        they have access) that workspace's templates. Archived templates are excluded.
+      operationId: listTemplates
+      tags: [Templates]
+      parameters:
+        - name: workspace_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+          description: Also include templates scoped to this workspace (caller must have access).
+      responses:
+        '200':
+          description: List of templates
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Template'
+                required: [data]
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: No access to the requested workspace
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      summary: Create template
+      description: |
+        Creates a template owned by the authenticated user. Private and
+        user-scoped by default; provide `workspace_id` to create a
+        workspace-scoped template (caller must be a workspace admin).
+      operationId: createTemplate
+      tags: [Templates]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTemplateRequest'
+      responses:
+        '201':
+          description: Template created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Template'
+        '400':
+          description: Validation error (missing required fields)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: Must be a workspace admin to create a workspace template
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /templates/{id}:
+    get:
+      summary: Get template
+      description: Returns a single template the caller can read.
+      operationId: getTemplate
+      tags: [Templates]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Template details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Template'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: No access to this template
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Template not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    patch:
+      summary: Update template
+      description: |
+        Updates a template. Caller must be the owner, a workspace admin (for
+        workspace-scoped templates), or a global admin.
+      operationId: updateTemplate
+      tags: [Templates]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTemplateRequest'
+      responses:
+        '200':
+          description: Updated template
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Template'
+        '400':
+          description: Validation error (no updatable fields)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: No permission to edit this template
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Template not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      summary: Delete template
+      description: |
+        Deletes a template. Caller must be the owner, a workspace admin (for
+        workspace-scoped templates), or a global admin.
+      operationId: deleteTemplate
+      tags: [Templates]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Template deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                required: [success]
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: No permission to delete this template
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Template not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
   /sessions:
     post:
