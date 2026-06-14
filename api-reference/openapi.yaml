@@ -145,6 +145,11 @@ components:
           type: string
           format: date-time
           nullable: true
+        source_provenance:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/SourceProvenance'
+          description: Provenance for a template installed from the OFL method-specs registry; null for admin-authored templates (HAR-1108).
         created_at:
           type: string
           format: date-time
@@ -152,6 +157,23 @@ components:
           type: string
           format: date-time
       required: [id, title, template_type, cross_pollination_default, is_public, created_at, updated_at]
+
+    SourceProvenance:
+      type: object
+      description: Provenance for a template installed from the OFL method-specs registry. Null for admin-authored templates.
+      properties:
+        spec_id: { type: string }
+        spec_version: { type: string }
+        registry: { type: string }
+        install_hash:
+          type: string
+          description: sha256 of the canonicalized chain_config as installed
+        installed_at:
+          type: string
+          format: date-time
+        installed_by:
+          type: string
+          nullable: true
 
     CreateTemplateRequest:
       type: object
@@ -192,6 +214,14 @@ components:
           description: Pass 'chain' (with chain_config) to install a chain method-spec (HAR-1098). Defaults to 'single'.
         chain_config:
           $ref: '#/components/schemas/ChainConfig'
+        source_provenance:
+          type: object
+          description: Spec identity for a registry install; the server stamps install_hash + timestamps (HAR-1108).
+          properties:
+            spec_id: { type: string }
+            spec_version: { type: string }
+            registry: { type: string }
+          required: [spec_id, spec_version, registry]
       required: [title]
 
     UpdateTemplateRequest:
@@ -229,6 +259,17 @@ components:
           description: Set to 'chain' to convert a single template into a chain (chain_config required) (HAR-1098).
         chain_config:
           $ref: '#/components/schemas/ChainConfig'
+        source_provenance:
+          type: object
+          description: Spec identity for a registry re-install; the server stamps install_hash + timestamps (HAR-1108).
+          properties:
+            spec_id: { type: string }
+            spec_version: { type: string }
+            registry: { type: string }
+          required: [spec_id, spec_version, registry]
+        force:
+          type: boolean
+          description: Overwrite a template that has local edits since install (HAR-1108).
 
     ChainConfig:
       type: object
@@ -1029,7 +1070,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/Template'
         '400':
-          description: Validation error (no updatable fields)
+          description: >-
+            Validation error (no updatable fields), or the template has local
+            edits since install and `force` was not set (HAR-1108).
           content:
             application/json:
               schema:
