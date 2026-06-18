@@ -1,0 +1,104 @@
+---
+title: "Chains"
+description: "Run multi-step session sequences where each step builds on the last"
+---
+
+## What is a chain?
+
+A chain is a sequence of sessions that run in order. Each step has its own facilitation focus and its own group of participants, but the output from one step flows automatically into the next as context. The final step sees the accumulated insight from every step before it.
+
+Chains are useful when you need structured progressions — a diverge-then-converge process, a panel of named roles deliberating in sequence, or a methodology that requires distinct phases.
+
+When you launch a chain, Harmonica automatically creates a project to contain all the steps. You can navigate between steps from any step's results page.
+
+## Start a chain
+
+Chains start from the **Templates** page, not the main dashboard. Chain templates appear in their own section on that page.
+
+<Steps>
+  <Step title="Go to Templates">
+    Navigate to **Templates** from the top navigation. Scroll to the **Methodology chains** section to browse available chain templates.
+  </Step>
+
+  <Step title="Select a chain template">
+    Click a chain template to open the chain overview. It shows the steps in order, what each step covers, and which roles (if any) each step requires.
+  </Step>
+
+  <Step title="Capture your roster (role chains)">
+    If the chain uses named roles — for example, a Delphi panel or Six Thinking Hats — you'll be prompted to add participant emails and assign each one a role before entering the wizard. Each step only activates for its assigned participants.
+
+    For open-participation chains (no fixed roles), skip this screen.
+  </Step>
+
+  <Step title="Complete the session wizard">
+    The wizard works the same as creating a standalone session. Fill in the objective, context, and any methodology-specific fields. The first step's session is created when you launch.
+  </Step>
+
+  <Step title="Share the first step">
+    Once launched, share the session link with your step-1 participants. After that step completes, the chain automatically advances and creates the next step's session.
+  </Step>
+</Steps>
+
+## Role-based steps
+
+Some chain templates assign participants to specific roles. Each role gets a dedicated join link for their assigned step — they only participate in the steps they're assigned to.
+
+For **host-assigned** chains, you assign participants to roles after the session launches. The step shows a waiting state until you make assignments; once you do, the step activates and participants can join.
+
+For **round-robin** and **all-participants** chains, role assignments happen automatically at launch based on your roster.
+
+<Note>
+  Participants receive their step-specific join links once the step becomes active. If a step is waiting on role assignment or waiting for the previous step to finish, participants won't see a joinable link yet.
+</Note>
+
+## How context flows between steps
+
+When a step completes, its session summary automatically becomes part of the next step's context. The facilitator in each new step knows what the previous group said.
+
+Depending on the chain template's design, the next step may receive:
+
+- **The previous step's summary** — the immediately preceding step only
+- **All prior summaries** — everything the chain has produced so far
+
+This context flows through the facilitator, so participants in later steps can build on, interrogate, or prioritise the output of earlier ones without being handed a raw document.
+
+## Navigate between steps
+
+Once a chain is running, you can navigate its steps from any step's results page. A step-progress widget shows the chain's title, each step's status (completed, current, or upcoming), and links to viewable steps.
+
+Public results pages include the same navigation, so stakeholders following the chain can move between visible steps without an account.
+
+<Tip>
+  The project created for the chain is also a useful home base. Open it from your dashboard to see all steps at a glance.
+</Tip>
+
+## Worked example: Wardley mapping
+
+The **Wardley Mapping** chain template is a three-step process that ends with a rendered Wardley map:
+
+1. **Landscape scan** — participants identify the components that make up the space: users, activities, and enabling capabilities.
+2. **Evolution assessment** — participants position each component on the evolution axis (genesis → custom → product → commodity).
+3. **Strategic synthesis** — the facilitator assembles findings into a rendered Wardley map, surfaced as a visual output artifact on the chain's project page.
+
+To launch it, find **Wardley Mapping** in the Methodology chains section of the Templates page. The resulting map appears on a dedicated **Wardley Map** tab in the project (labeled **Maps** if the project contains more than one Wardley chain), and you can export it as PNG, SVG, or the raw map definition.
+
+<Note>
+  The Wardley map is assembled progressively across steps. You can open the map tab while the chain is still running to see the emerging picture — it updates as each step completes.
+</Note>
+
+## Related guides
+
+<CardGroup cols={2}>
+  <Card title="Templates" icon="layout-template" href="/guides/hosts/templates">
+    Browse all templates, including methodology chains
+  </Card>
+  <Card title="Managing projects" icon="folder" href="/guides/hosts/managing-projects">
+    Projects are created automatically for each chain
+  </Card>
+  <Card title="Session results" icon="chart-bar" href="/guides/hosts/session-results">
+    Reviewing results at each step
+  </Card>
+  <Card title="Context sources" icon="book-open" href="/guides/hosts/context-sources">
+    Attach extra material to any step's session
+  </Card>
+</CardGroup>

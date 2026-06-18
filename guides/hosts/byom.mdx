@@ -26,11 +26,15 @@ Harmonica supports API keys from these providers:
 | **Ollama** | Llama, Mistral, Qwen | Local models, fully offline |
 | **OpenAI-compatible** | Any provider with an OpenAI-compatible API | Custom base URL supported |
 
+## LTD plan requirement
+
+If you are on the Lifetime Deal (LTD) plan, BYOM is required to create sessions. LTD accounts do not use Harmonica's monthly AI credit balance — all LLM calls must go through your own keys. If you try to create a session without any BYOM keys configured, the session creation flow will block with a prompt to set up your keys first. A banner on the dashboard also reminds you when no keys are detected.
+
 ## Setting up BYOM
 
 <Steps>
   <Step title="Go to Settings">
-    Navigate to **Settings** → **AI Models** tab in your Harmonica dashboard.
+    Navigate to **Settings** → **Integrations** in your Harmonica dashboard. The **AI Models** section at the top of that tab is where you manage your BYOM keys and model assignments.
   </Step>
 
   <Step title="Add an API key">

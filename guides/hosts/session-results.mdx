@@ -45,6 +45,78 @@ The **Custom Insights** tab lets you add your own observations and analysis on t
 
 If participants or you have uploaded documents (PDFs up to 10MB), they appear in the **Files** tab with metadata and download options.
 
+## Reviewing facilitator behavior
+
+<Note>
+  The **Review** tab is available on Pro plans.
+</Note>
+
+After participants have finished their conversations, a **Review** tab appears on your session results page. It gives you an AI-generated audit of how the facilitator handled the session.
+
+### What it shows
+
+Click **Run review** to analyze the session. The review reads across all participant conversations — looking at how the facilitator asked questions, whether it stayed on topic, whether it pushed too hard or too gently, and similar facilitation patterns. If it finds anything worth flagging, it surfaces a list of findings.
+
+Each finding includes:
+
+- A short title describing the issue
+- A quoted excerpt from a real conversation as evidence
+- A suggested prompt rule that would address the issue in future sessions
+
+### Apply a finding to your session
+
+For any finding you agree with, click **Apply**. This opens your session's **Session Design** panel with the suggested rule pre-staged in the Facilitation Approach. Review the proposed change, edit it if you want to adjust the wording, and save it. The rule becomes part of your facilitation prompt going forward.
+
+<Tip>
+  Applying a finding doesn't rewrite your facilitation prompt — it appends an additive rule. Your existing prompt stays intact.
+</Tip>
+
+You can re-run the review at any time if you've made changes and want a fresh assessment.
+
+## Quotes as evidence
+
+The session summary can display direct quotes from participant conversations as evidence for each finding. Instead of describing what participants said, the summary shows what they actually wrote.
+
+### Where quotes appear
+
+When grounding is enabled, each section of the rendered summary expands to show a **Supporting voices** block — a set of short verbatim excerpts, labeled with anonymized participant identifiers (Participant 1, Participant 2, and so on). The quotes are tied to the specific summary claim they support, not shown as a general appendix.
+
+### Enable grounding on a session
+
+A **Ground with quotes** button is available on the session results page for hosts on Pro. Clicking it runs the grounding pass, which reads each participant's conversation, extracts the relevant verbatim excerpts, and maps them to the appropriate summary sections. The result is saved and displayed immediately.
+
+You can run grounding on any session that already has a summary — including older sessions created before this feature launched.
+
+### Re-running the summary
+
+Grounding is re-run automatically whenever the summary regenerates. The quotes stay in sync with the current summary.
+
+<Note>
+  Quotes are extracted verbatim from participant transcripts and checked against the actual conversation text before being included. No quote can appear in the summary that was not said by a participant.
+</Note>
+
+## Following up with another session
+
+After a session ends and the summary has been generated, a **Suggested next session** card appears below the results tabs. It offers an AI-generated proposal for a follow-up session based on what emerged from this one.
+
+### What the card shows
+
+Click **Suggest a follow-up** to generate a proposal. The card displays:
+
+- A suggested **Topic** for the next session
+- A **Critical** field — the key question to focus on
+- A **Context** field — background drawn from this session's outcomes
+
+Click **Try another** to generate a different proposal.
+
+### One-click follow-up
+
+Click **Create follow-up** to open the session creation flow pre-filled with the suggested values. The current session is automatically attached as a context source — so the new facilitator will have access to this session's summary as background material.
+
+If the current session belongs to a project, the follow-up session is created in the same project automatically.
+
+You can edit any field in the creation flow before launching. The suggestion is a starting point, not a commitment.
+
 ## Managing participants in results
 
 You can control which participants are included in the summary:

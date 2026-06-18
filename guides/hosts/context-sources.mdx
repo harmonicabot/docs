@@ -1,0 +1,101 @@
+---
+title: "Context sources"
+description: "Attach files, prior sessions, and MCP servers so the facilitator stays grounded in your material"
+---
+
+## What are context sources?
+
+Context sources are reference materials you attach to a session. The AI facilitator reads them during each participant conversation — so instead of working only from the session goal and prior discussions, it can draw on documents you've provided, summaries from related sessions, or live data from an MCP server.
+
+Up to 20 sources can be attached per session. Adding sources is a Pro feature.
+
+## Source types
+
+### Files
+
+Upload a document — a brief, a research report, a product spec, or any plain text or Markdown file. Short files (under 50 KB) are read in full on every turn. Longer files are chunked and indexed; the facilitator retrieves the most relevant passages based on what's happening in the conversation.
+
+Use files when you want the facilitator to stay anchored in specific written material — for example, grounding a feedback session in an existing proposal, or keeping a planning session connected to a strategy document.
+
+### Sessions
+
+Reference another Harmonica session by ID. The referenced session's summary is attached to this session as context. This is useful for cross-pollination: a second session can build on what the first group said, even if the participants are completely different.
+
+The snapshot is taken at the time you add the source. If the referenced session's summary changes later, use the **Refresh** action on the source to pull in the updated version.
+
+### MCP servers
+
+Attach an MCP (Model Context Protocol) server via its URL. The facilitator connects to the server live on each turn and can call its tools during the conversation. Use this for real-time integrations — a knowledge base, a live data feed, or a custom tool that should be available to the facilitator mid-session.
+
+<Note>
+  MCP sources require a publicly reachable server URL. The facilitator connects on each participant turn, so latency and availability of your MCP server affects conversation speed. After five consecutive failures, a source is marked unhealthy and skipped until you reconnect it.
+</Note>
+
+## Attach a context source
+
+<Steps>
+  <Step title="Open Session Design">
+    From your session results page, open the session overview panel and navigate to the **Sources** tab.
+  </Step>
+
+  <Step title="Click Add source">
+    Click **Add source**. A dialog appears with three tabs: **File**, **Session**, and **MCP**.
+  </Step>
+
+  <Step title="Choose a source type and fill in the details">
+    <Tabs>
+      <Tab title="File">
+        Select a plain text or Markdown file from your device. Give it a title so you can identify it in the sources list. Files over 50 KB are chunked automatically — you don't need to do anything differently.
+      </Tab>
+      <Tab title="Session">
+        Enter the session ID of the Harmonica session you want to reference. You can find a session's ID in its URL. The current summary of that session is attached as context.
+      </Tab>
+      <Tab title="MCP">
+        Enter the server URL and, if required, a bearer token for authentication. Optionally enter a comma-separated list of tool names in the **Tool allowlist** field to restrict which of the server's tools the facilitator can call. Leave it blank to allow all tools the server exposes.
+      </Tab>
+    </Tabs>
+  </Step>
+
+  <Step title="Confirm">
+    Click **Add**. The source appears in the sources list immediately. The facilitator uses it in new conversations from this point forward.
+  </Step>
+</Steps>
+
+## Manage existing sources
+
+From the **Sources** tab, each attached source shows its title, type, and status.
+
+- **Remove** — detaches the source. Existing conversations already in progress are not affected.
+- **Refresh** (session sources only) — updates the attached summary from the referenced session. Useful if that session has produced new results since you originally attached it.
+
+<Tip>
+  You can add and remove sources while a session is active. Changes apply to new conversations only — participants already mid-conversation won't see a different context mid-turn.
+</Tip>
+
+## How the facilitator uses context sources
+
+Context sources are read at the start of each conversation turn, before the facilitator generates its response. The order of priority (from highest to lowest) in the facilitator's view is:
+
+1. The session's core fields (goal, context, critical information)
+2. Any organizational context you've set at the account level
+3. Session-level context sources (files, sessions, MCP)
+4. Scratchpad themes accumulated from prior conversations
+
+For chunked files, retrieval is based on relevance to the current conversation moment — the facilitator doesn't read the whole document on every turn, only the passages most relevant to what the participant just said.
+
+## Related guides
+
+<CardGroup cols={2}>
+  <Card title="Session settings" icon="gear" href="/guides/hosts/session-settings">
+    Other per-session configuration options
+  </Card>
+  <Card title="Chains" icon="link" href="/guides/hosts/chains">
+    Using context from one step to inform the next
+  </Card>
+  <Card title="Session results" icon="chart-bar" href="/guides/hosts/session-results">
+    Reviewing what the facilitator surfaced
+  </Card>
+  <Card title="Templates" icon="layout-template" href="/guides/hosts/templates">
+    Starting from a pre-built session design
+  </Card>
+</CardGroup>

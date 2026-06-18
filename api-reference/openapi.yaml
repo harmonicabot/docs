@@ -93,6 +93,237 @@ components:
           format: date-time
       required: [id, topic, goal, status, participant_count, created_at, updated_at]
 
+    Template:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        description:
+          type: string
+          nullable: true
+        icon:
+          type: string
+          nullable: true
+        facilitation_prompt:
+          type: string
+          nullable: true
+        default_session_name:
+          type: string
+          nullable: true
+        default_goal:
+          type: string
+          nullable: true
+        default_critical:
+          type: string
+          nullable: true
+        default_context:
+          type: string
+          nullable: true
+        template_type:
+          type: string
+          description: 'single or chain'
+        chain_config:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/ChainConfig'
+          description: Chain definition for chain templates; null for single templates (HAR-1098).
+        cross_pollination_default:
+          type: boolean
+        is_public:
+          type: boolean
+        workspace_id:
+          type: string
+          format: uuid
+          nullable: true
+        created_by:
+          type: string
+          nullable: true
+        archived_at:
+          type: string
+          format: date-time
+          nullable: true
+        source_provenance:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/SourceProvenance'
+          description: Provenance for a template installed from the OFL method-specs registry; null for admin-authored templates (HAR-1108).
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required: [id, title, template_type, cross_pollination_default, is_public, created_at, updated_at]
+
+    SourceProvenance:
+      type: object
+      description: Provenance for a template installed from the OFL method-specs registry. Null for admin-authored templates.
+      properties:
+        spec_id: { type: string }
+        spec_version: { type: string }
+        registry: { type: string }
+        install_hash:
+          type: string
+          description: sha256 of the canonicalized chain_config as installed
+        installed_at:
+          type: string
+          format: date-time
+        installed_by:
+          type: string
+          nullable: true
+
+    CreateTemplateRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+          nullable: true
+        icon:
+          type: string
+          nullable: true
+        facilitation_prompt:
+          type: string
+          nullable: true
+        default_session_name:
+          type: string
+          nullable: true
+        default_goal:
+          type: string
+          nullable: true
+        default_critical:
+          type: string
+          nullable: true
+        default_context:
+          type: string
+          nullable: true
+        is_public:
+          type: boolean
+          default: false
+        workspace_id:
+          type: string
+          nullable: true
+          description: When set, creates a workspace-scoped template (caller must be a workspace admin).
+        template_type:
+          type: string
+          enum: [single, chain]
+          description: Pass 'chain' (with chain_config) to install a chain method-spec (HAR-1098). Defaults to 'single'.
+        chain_config:
+          $ref: '#/components/schemas/ChainConfig'
+        source_provenance:
+          type: object
+          description: Spec identity for a registry install; the server stamps install_hash + timestamps (HAR-1108).
+          properties:
+            spec_id: { type: string }
+            spec_version: { type: string }
+            registry: { type: string }
+          required: [spec_id, spec_version, registry]
+      required: [title]
+
+    UpdateTemplateRequest:
+      type: object
+      description: All fields optional; at least one must be provided.
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+          nullable: true
+        icon:
+          type: string
+          nullable: true
+        facilitation_prompt:
+          type: string
+          nullable: true
+        default_session_name:
+          type: string
+          nullable: true
+        default_goal:
+          type: string
+          nullable: true
+        default_critical:
+          type: string
+          nullable: true
+        default_context:
+          type: string
+          nullable: true
+        is_public:
+          type: boolean
+        template_type:
+          type: string
+          enum: [single, chain]
+          description: Set to 'chain' to convert a single template into a chain (chain_config required) (HAR-1098).
+        chain_config:
+          $ref: '#/components/schemas/ChainConfig'
+        source_provenance:
+          type: object
+          description: Spec identity for a registry re-install; the server stamps install_hash + timestamps (HAR-1108).
+          properties:
+            spec_id: { type: string }
+            spec_version: { type: string }
+            registry: { type: string }
+          required: [spec_id, spec_version, registry]
+        force:
+          type: boolean
+          description: Overwrite a template that has local edits since install (HAR-1108).
+
+    ChainConfig:
+      type: object
+      description: >-
+        Multi-step chain definition (used when template_type is 'chain').
+        Validated server-side (HAR-915): at least one step, unique step ids,
+        valid role / assignment / completion shapes.
+      required: [steps]
+      properties:
+        steps:
+          type: array
+          minItems: 1
+          items:
+            type: object
+            required: [id]
+            properties:
+              id:
+                type: string
+              title:
+                type: string
+              description:
+                type: string
+              facilitation_prompt:
+                type: string
+              default_session_name:
+                type: string
+              context_mode:
+                type: string
+                enum: [none, previous_summary, all_summaries, custom]
+              individual_memory:
+                type: boolean
+              roles:
+                type: array
+                items:
+                  type: object
+                  required: [slug, label]
+                  properties:
+                    slug:
+                      type: string
+                    label:
+                      type: string
+                    weight:
+                      type: string
+                      enum: [normal, elevated, lead]
+              assignment_strategy:
+                type: string
+                enum: [explicit, round_robin, first_come_first_served, host_assigned, all_participants]
+              completion_criteria:
+                type: object
+                description: 'e.g. { "type": "host_continue" } or { "type": "quorum", "count": 3 }'
+        output_artifact:
+          type: string
+          enum: [wardley]
+
     PublicSessionListItem:
       type: object
       description: Session object returned by the public discovery endpoint. Extends SessionListItem with a join URL.
@@ -502,6 +733,103 @@ components:
           format: date-time
       required: [id, session_id, source_type, title, position, created_at, updated_at]
 
+    SessionKnowledge:
+      type: object
+      description: |
+        Structured, typed knowledge synthesised from a session — decisions,
+        action items, tensions, and atomic claims — each carrying message-ID
+        provenance. Generated after the session summary. Pro feature.
+      properties:
+        decisions:
+          type: array
+          items:
+            type: object
+            properties:
+              label:
+                type: string
+              summary:
+                type: string
+              evidence:
+                type: array
+                description: Source message IDs backing this decision.
+                items:
+                  type: string
+              phase:
+                type: string
+            required: [label, summary, evidence]
+        actions:
+          type: array
+          items:
+            type: object
+            properties:
+              description:
+                type: string
+              owner:
+                type: string
+              due:
+                type: string
+              evidence:
+                type: array
+                items:
+                  type: string
+            required: [description, evidence]
+        tensions:
+          type: array
+          items:
+            type: object
+            properties:
+              summary:
+                type: string
+              sides:
+                type: array
+                minItems: 2
+                items:
+                  type: string
+              evidence:
+                type: array
+                items:
+                  type: string
+            required: [summary, sides, evidence]
+        claims:
+          type: array
+          items:
+            type: object
+            properties:
+              category:
+                type: string
+                enum: [decision, tension, action, open-question, observation, quote, minority-view]
+              text:
+                type: string
+              evidence:
+                type: array
+                items:
+                  type: string
+              phase:
+                type: string
+              strength:
+                type: number
+                minimum: 0
+                maximum: 1
+            required: [category, text, evidence]
+        gaps:
+          type: array
+          description: Areas the session left unresolved (optional).
+          items:
+            type: string
+        metadata:
+          type: object
+          properties:
+            generatedAt:
+              type: integer
+              description: Unix epoch timestamp when the knowledge was generated.
+            model:
+              type: string
+            version:
+              type: integer
+              enum: [1]
+          required: [generatedAt, model, version]
+      required: [decisions, actions, tensions, claims, metadata]
+
     Error:
       type: object
       properties:
@@ -596,6 +924,214 @@ paths:
                 $ref: '#/components/schemas/UserInfo'
         '401':
           $ref: '#/components/responses/Unauthorized'
+
+  /templates:
+    get:
+      summary: List templates
+      description: |
+        Returns templates visible to the authenticated user: public global
+        templates, templates they own, and (when `workspace_id` is provided and
+        they have access) that workspace's templates. Archived templates are excluded.
+      operationId: listTemplates
+      tags: [Templates]
+      parameters:
+        - name: workspace_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+          description: Also include templates scoped to this workspace (caller must have access).
+      responses:
+        '200':
+          description: List of templates
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Template'
+                required: [data]
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: No access to the requested workspace
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      summary: Create template
+      description: |
+        Creates a template owned by the authenticated user. Private and
+        user-scoped by default; provide `workspace_id` to create a
+        workspace-scoped template (caller must be a workspace admin).
+
+        Pass `template_type: chain` with a `chain_config` to install a chain
+        method-spec (HAR-1098). Chain creation is subject to the same per-plan
+        step cap as launching a chain (Free is capped; paid is unlimited).
+      operationId: createTemplate
+      tags: [Templates]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTemplateRequest'
+      responses:
+        '201':
+          description: Template created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Template'
+        '400':
+          description: Validation error (missing required fields)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: >-
+            Must be a workspace admin to create a workspace template, or the
+            chain step count exceeds the caller's plan limit (HAR-1098).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /templates/{id}:
+    get:
+      summary: Get template
+      description: Returns a single template the caller can read.
+      operationId: getTemplate
+      tags: [Templates]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Template details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Template'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: No access to this template
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Template not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    patch:
+      summary: Update template
+      description: |
+        Updates a template. Caller must be the owner, a workspace admin (for
+        workspace-scoped templates), or a global admin.
+
+        Set `template_type: chain` with a `chain_config` to convert a single
+        template into a chain, or send `chain_config` to edit an existing
+        chain (HAR-1098). Subject to the same per-plan step cap as chain launch.
+      operationId: updateTemplate
+      tags: [Templates]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTemplateRequest'
+      responses:
+        '200':
+          description: Updated template
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Template'
+        '400':
+          description: >-
+            Validation error (no updatable fields), or the template has local
+            edits since install and `force` was not set (HAR-1108).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: >-
+            No permission to edit this template, or the chain step count exceeds
+            the caller's plan limit (HAR-1098).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Template not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      summary: Delete template
+      description: |
+        Deletes a template. Caller must be the owner, a workspace admin (for
+        workspace-scoped templates), or a global admin.
+      operationId: deleteTemplate
+      tags: [Templates]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Template deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                required: [success]
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: No permission to delete this template
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Template not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
   /sessions:
     post:
@@ -1002,6 +1538,64 @@ paths:
                     format: date-time
                     nullable: true
                 required: [session_id, summary]
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /sessions/{id}/knowledge:
+    post:
+      summary: Generate structured session knowledge
+      description: |
+        Synthesises typed, structured knowledge from a session — decisions,
+        action items, tensions, and atomic claims — each backed by the message
+        IDs it was drawn from. When the session has grounding enabled,
+        pre-extracted verbatim quotes are resolved to their source messages and
+        woven in as provenance.
+
+        The session must already have a summary (call `POST /sessions/{id}/summary`
+        first). The generated knowledge is persisted on the session and returned.
+        Requires **editor** access.
+
+        Pro feature. This exposes the structured-knowledge **data layer** — there
+        is no results-page UI for it yet.
+      operationId: generateSessionKnowledge
+      tags: [Sessions]
+      parameters:
+        - $ref: '#/components/parameters/sessionId'
+      responses:
+        '200':
+          description: Generated (or skipped) session knowledge
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [generated, skipped]
+                    description: '`generated` when knowledge was produced; `skipped` on a no-op.'
+                  knowledge:
+                    description: The generated knowledge, or null when skipped.
+                    oneOf:
+                      - $ref: '#/components/schemas/SessionKnowledge'
+                      - type: 'null'
+                  reason:
+                    type: string
+                    description: Present when `status` is `skipped`.
+                required: [status, knowledge]
+        '400':
+          description: Session has no summary yet
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: validation_error
+                  message: Session has no summary yet — generate summary first
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':

@@ -7,6 +7,13 @@ description: "Learn how to create and manage Harmonica sessions"
 
 As a host, you can set up and manage Harmonica sessions to gather insights, facilitate discussions, and coordinate with groups. This guide covers everything you need to know about creating effective sessions.
 
+## Two starting points
+
+You can start a session from scratch or from a methodology template.
+
+- **From scratch** — type your objective directly in the dashboard input field and click **Create**. You'll fill in goal, critical information, and context manually.
+- **From a template** — go to **Templates** and pick a methodology. The template pre-fills the session's fields and selects a facilitation approach matched to that method. If you pick a chain template (a multi-step sequence), see the [Chains guide](/guides/hosts/chains) instead — those launch differently.
+
 ## Creating your first session
 
 <Steps>
@@ -15,35 +22,38 @@ As a host, you can set up and manage Harmonica sessions to gather insights, faci
   </Step>
   
   <Step title="Navigate to your dashboard">
-    After signing in, you'll see your dashboard with an overview of your sessions and projects. You'll see a welcome banner with the question "What do you want to find out?"
+    After signing in, you'll see your dashboard with an overview of your sessions and projects.
   </Step>
   
   <Step title="Start creating a session">
-    You can create a session in several ways:
-    - Type your objective in the "What do you want to find out?" input field on the dashboard and click "Create"
-    - Click "Get Started" or "Create Session" button
-    - Browse templates by clicking the "Templates" button for common use cases
+    You can start in several ways:
+    - Type your objective in the input field on the dashboard and click **Create**
+    - Click **Create Session**
+    - Go to **Templates** to pick a pre-built methodology and have the fields pre-filled for you
   </Step>
   
-  <Step title="Design your session (Multi-step form)">
-    You'll go through a step-by-step process:
-    - **Step 1: Objective** - Summarize what you are trying to achieve through these interviews
-    - **Step 2: Critical to gather** - Specify what kind of information or details you need from participant responses
-    - **Step 3: Context** - Provide background to help the AI understand the purpose of your session (optional)
-    - **Step 4: Session name** - Enter a clear session name that will be shared with participants
-    
-    You can review and edit all fields before proceeding.
+  <Step title="Fill in the session fields">
+    The creation wizard walks you through the session's core fields. The exact fields depend on whether you started from a template:
+
+    - **Goal** (or equivalent methodology field) — what you are trying to find out or achieve
+    - **Critical to gather** — the specific kind of information you need from participants
+    - **Context** — background that helps the AI understand the session (optional)
+    - **Session name** — the name participants will see
+
+    Methodology templates may replace the default fields with ones better suited to that method. The flow adjusts accordingly.
+
+    Each field has a **Suggest** button that asks the AI to draft a value based on what you've entered so far. Click it to get a starting point, then edit it to your needs.
   </Step>
   
-  <Step title="Refine your session">
-    After completing the form, Harmonica will generate a conversational guide (prompt) for the survey. You can:
+  <Step title="Review the generated facilitation prompt">
+    After the fields are complete, Harmonica generates a conversational guide (the facilitation prompt) for the session. You can:
     - Review the generated prompt
     - Edit and refine it as needed
-    - Generate new versions if you make changes
+    - Regenerate it if you change any of the fields
   </Step>
   
   <Step title="Configure participant questions">
-    Set up a pre-session form that participants will fill out before chatting:
+    Set up the pre-session form participants will fill out before chatting:
     - Add custom questions (name, email, or custom fields)
     - Configure question types (short text, email, multiple choice, etc.)
     - Set which fields are required
@@ -51,10 +61,9 @@ As a host, you can set up and manage Harmonica sessions to gather insights, faci
   </Step>
   
   <Step title="Launch and share">
-    Once everything is configured, launch your session. You'll get a unique session link (format: `/chat?s={sessionId}`) that you can:
+    Once everything is configured, launch your session. You'll get a unique session link that you can:
     - Copy and share via email, messaging, or other channels
     - Generate a QR code for easy sharing
-    - Share directly with participants
   </Step>
 </Steps>
 
@@ -92,13 +101,9 @@ Choose a clear, descriptive name that will be shared with participants. This hel
 
 ### Using templates
 
-Templates provide pre-configured session setups for common use cases:
-- Product feedback sessions
-- Team retrospectives
-- Research interviews
-- Planning sessions
+The **Templates** page lists methodology templates and chain templates. Selecting a single-session methodology template pre-fills your session's fields and sets a facilitation approach matched to that method. You can still edit any field before launching.
 
-Browse available templates when creating a session to save time and ensure you're asking the right questions.
+See [Templates](/guides/hosts/templates) for a full list of available types, and [Chains](/guides/hosts/chains) for multi-step chain templates.
 
 ## Inviting participants
 
@@ -164,6 +169,53 @@ Additional analysis based on your session goals and the data collected.
 ### Similarity scores
 If enabled, you can see how similar or different participants' responses are.
 
+## Regenerating after edits
+
+After you launch a session, you can keep editing its brief fields — goal, critical information, context, and topic — from the **Brief** tab inside the session overview modal. When those fields drift from what was used to generate the current facilitation prompt, a banner appears offering to regenerate.
+
+### What gets regenerated
+
+Clicking **Regenerate** triggers a full recompose of two prompt layers:
+
+- **Facilitation Approach** — the methodology-specific instructions for the session
+- **Summary Generation** — how participant conversations are synthesized
+
+The recompose uses everything: your current HARMONICA.md, the active methodology template, and the updated brief fields. Before this was introduced, the cascade only used the brief fields and ignored your organizational context and template — brief edits now produce prompts that are fully coherent with your project's standing context.
+
+### Accept vs override
+
+The regenerated layers are returned as a proposal — you review them before they are saved. If the proposal looks right, save it. If you want to adjust the wording, edit it first.
+
+If you have manually customized the Facilitation Approach with specific rules you want to keep, compare the proposal against your current version before saving. The recompose starts fresh from the brief and template; it does not attempt to preserve manual additions.
+
+### Cross-Pollination snap
+
+During regeneration you can optionally include a **Cross-Pollination snap** — a snapshot of the themes and tensions the AI has surfaced from participant conversations so far. Including it makes the new prompt aware of what has already emerged, which is useful when you are adjusting the facilitation direction mid-session based on early responses.
+
+### Full prompt layer details
+
+To see and edit all four prompt layers (HARMONICA.md, Platform Guidelines, Facilitation Approach, Summary Generation) in one place, open the [Session Design](/guides/hosts/session-design) tab in the session overview modal.
+
+## Customising the participant landing
+
+When participants open your session link, they land on a welcome card before the conversation begins. You can control what they see from the **Landing** tab inside the session overview modal.
+
+### What you can set
+
+**Welcome message** — the text shown on the welcome card. Supports markdown: use `[text](https://…)` for clickable links and bare URLs auto-link as well. Aim for a few sentences that set context and encourage participation.
+
+**Link preview description** — the short description shown when your invitation link is shared in Slack, Teams, iMessage, and similar platforms. Keep it under 160 characters.
+
+**Video intro** — an optional video embedded above the welcome card. Paste a YouTube, Google Drive, Loom, or Vimeo URL. A thumbnail chip previews your selection before you save.
+
+### AI-drafted welcome message
+
+When you create a session, Harmonica automatically drafts a welcome message from your brief. You will see it pre-filled when you open the Landing tab. Edit it to your voice, or click **Regenerate AI copy** to produce a new draft. If you have unsaved edits, Harmonica will ask before overwriting them.
+
+### Save
+
+All three fields save together when you click **Save** in the Landing tab's action bar.
+
 ## Organizing sessions into projects
 
 Sessions can be organized into **projects** to:
@@ -217,14 +269,17 @@ See our [Managing Projects](/guides/hosts/managing-projects) guide for more deta
 ## Next steps
 
 <CardGroup cols={2}>
+  <Card title="Session Design" icon="sliders" href="/guides/hosts/session-design">
+    Edit all four prompt layers for a session
+  </Card>
+  <Card title="Templates" icon="layout-template" href="/guides/hosts/templates">
+    Browse methodology templates and chain templates
+  </Card>
+  <Card title="Chains" icon="link" href="/guides/hosts/chains">
+    Multi-step session sequences
+  </Card>
   <Card title="Managing projects" icon="folder" href="/guides/hosts/managing-projects">
-    Learn about organizing sessions into projects
-  </Card>
-  <Card title="Quickstart" icon="rocket" href="/quickstart">
-    Review the quickstart guide
-  </Card>
-  <Card title="FAQ" icon="circle-question" href="/faq">
-    Find answers to common questions
+    Organize sessions into projects
   </Card>
 </CardGroup>
 

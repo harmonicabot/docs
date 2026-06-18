@@ -32,8 +32,14 @@
             "group": "For hosts",
             "pages": [
               "guides/hosts/creating-sessions",
+              "guides/hosts/session-design",
               "guides/hosts/session-results",
               "guides/hosts/templates",
+              "guides/hosts/chains",
+              "guides/hosts/widgets",
+              "guides/hosts/context-sources",
+              "guides/hosts/organizational-context",
+              "guides/hosts/notifications",
               "guides/hosts/session-settings",
               "guides/hosts/collaboration",
               "guides/hosts/managing-projects",
@@ -57,6 +63,11 @@
             "group": "Endpoints",
             "pages": [
               "GET /me",
+              "GET /templates",
+              "POST /templates",
+              "GET /templates/{id}",
+              "PATCH /templates/{id}",
+              "DELETE /templates/{id}",
               "POST /sessions",
               "GET /sessions",
               "GET /sessions/public",
@@ -67,6 +78,7 @@
               "POST /sessions/{id}/responses",
               "GET /sessions/{id}/session-md",
               "GET /sessions/{id}/summary",
+              "POST /sessions/{id}/knowledge",
               "POST /sessions/{id}/scratchpad",
               "POST /sessions/{id}/chat",
               "POST /sessions/{id}/chat/questions"
@@ -122,5 +134,11 @@
   },
   "fonts": {
     "family": "Instrument Sans"
-  }
+  },
+  "redirects": [
+    {
+      "source": "/guides/hosts/project-memory",
+      "destination": "/guides/hosts/organizational-context"
+    }
+  ]
 }
