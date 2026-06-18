@@ -2091,6 +2091,214 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
+  /projects/{id}/context-sources:
+    get:
+      summary: List project context sources
+      description: |
+        List all project (workspace) level context sources, ordered by position then
+        created_at. Project sources apply to every session inside the project (merged
+        ahead of each session's own sources, MCP deduped by URL). No tier check on read.
+      operationId: listProjectContextSources
+      tags: [Context Sources]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Project (workspace) ID.
+          schema: { type: string }
+      responses:
+        '200':
+          description: Project context sources
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sources:
+                    type: array
+                    items: { type: object }
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: Insufficient permissions
+  /projects/{id}/context-sources/file:
+    post:
+      summary: Upload a project file context source
+      description: |
+        Upload a file (Markdown, plain text, or PDF) as a project-level context source.
+        PDFs are extracted to text via pdf2json. Files whose text is <= 50 KB are stored
+        verbatim; larger files are chunked and embedded. Max 4 MB, max 20 sources per
+        project. Requires a Pro, LTD, or ENTERPRISE subscription.
+      operationId: uploadProjectContextSourceFile
+      tags: [Context Sources]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: "Allowed types: text/plain, text/markdown, application/pdf."
+                title: { type: string }
+      responses:
+        '201': { description: Context source created }
+        '400': { description: Validation error (unsupported type, oversized, or a PDF with no extractable text) }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { description: Insufficient permissions or tier }
+        '422': { description: Source cap reached (20 per project) }
+  /projects/{id}/context-sources/session:
+    post:
+      summary: Reference a session as a project context source
+      description: |
+        Snapshot another session's SESSION.md and attach it at the project level.
+        Requires editor access on the project and viewer access on the source session.
+        Requires a Pro, LTD, or ENTERPRISE subscription.
+      operationId: addProjectContextSourceSession
+      tags: [Context Sources]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [source_ref]
+              properties:
+                source_ref:
+                  type: string
+                  description: ID of the session whose SESSION.md to snapshot.
+                title: { type: string }
+      responses:
+        '201': { description: Context source created }
+        '400': { description: Validation error (missing source_ref or source has no SESSION.md) }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { description: No access to project or source session }
+        '422': { description: Source cap reached (20 per project) }
+  /projects/{id}/context-sources/mcp:
+    post:
+      summary: Register an MCP server as a project context source
+      description: |
+        Register an MCP server at the project level. Performs a handshake to enumerate
+        tools and validates any allowlist. Requires a Pro, LTD, or ENTERPRISE subscription.
+      operationId: addProjectContextSourceMcp
+      tags: [Context Sources]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [url, title]
+              properties:
+                url: { type: string }
+                title: { type: string }
+                bearer: { type: string, nullable: true }
+                tool_allowlist:
+                  type: array
+                  items: { type: string }
+                  nullable: true
+      responses:
+        '201': { description: Context source created }
+        '400': { description: Validation error (handshake failed or allowlist mismatch) }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { description: Insufficient permissions or tier }
+        '422': { description: Source cap reached (20 per project) }
+  /projects/{id}/context-sources/{source_id}:
+    patch:
+      summary: Update a project context source
+      description: |
+        Update a project context source's title, position, or mcp_config.
+        Requires a Pro, LTD, or ENTERPRISE subscription.
+      operationId: updateProjectContextSource
+      tags: [Context Sources]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+        - name: source_id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title: { type: string }
+                position: { type: integer }
+                mcp_config: { type: object }
+      responses:
+        '200': { description: Updated source }
+        '400': { description: No fields to update }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { description: Insufficient permissions or tier }
+        '404': { description: Source not found in this project }
+    delete:
+      summary: Delete a project context source
+      description: |
+        Delete a project context source. Cascades to session_embeddings via FK.
+        Requires a Pro, LTD, or ENTERPRISE subscription.
+      operationId: deleteProjectContextSource
+      tags: [Context Sources]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+        - name: source_id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '204': { description: Deleted }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { description: Insufficient permissions or tier }
+        '404': { description: Source not found }
+  /projects/{id}/context-sources/{source_id}/refresh:
+    post:
+      summary: Refresh a project context source
+      description: |
+        Re-snapshot a session reference or re-handshake an MCP source at the project
+        level. File sources cannot be refreshed (re-upload required). Requires a Pro,
+        LTD, or ENTERPRISE subscription.
+      operationId: refreshProjectContextSource
+      tags: [Context Sources]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+        - name: source_id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200': { description: Refreshed source }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { description: Insufficient permissions or tier }
+        '404': { description: Source not found }
+        '422': { description: File sources cannot be refreshed }
   /sessions/{id}/context-sources/file:
     post:
       summary: Upload a file context source
