@@ -2095,9 +2095,12 @@ paths:
     get:
       summary: List project context sources
       description: |
-        List all project (workspace) level context sources, ordered by position then
+        List the project (workspace) level context sources, ordered by position then
         created_at. Project sources apply to every session inside the project (merged
-        ahead of each session's own sources, MCP deduped by URL). No tier check on read.
+        ahead of each session's own sources, MCP deduped by URL). `inheritedSources`
+        (HAR-1166) additionally lists every source attached to a session inside the
+        project — read-only here, managed on its session, each tagged with `session_topic`.
+        No tier check on read.
       operationId: listProjectContextSources
       tags: [Context Sources]
       parameters:
@@ -2117,6 +2120,13 @@ paths:
                   sources:
                     type: array
                     items: { type: object }
+                  inheritedSources:
+                    type: array
+                    description: Session-attached sources surfaced read-only at the project level.
+                    items:
+                      type: object
+                      properties:
+                        session_topic: { type: string, nullable: true }
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
