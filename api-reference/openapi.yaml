@@ -2225,8 +2225,8 @@ paths:
     patch:
       summary: Update a project context source
       description: |
-        Update a project context source's title, position, or mcp_config.
-        Requires a Pro, LTD, or ENTERPRISE subscription.
+        Update a project context source's title, position, mcp_config, or a single
+        knowledge-curation toggle. Requires a Pro, LTD, or ENTERPRISE subscription.
       operationId: updateProjectContextSource
       tags: [Context Sources]
       parameters:
@@ -2248,6 +2248,17 @@ paths:
                 title: { type: string }
                 position: { type: integer }
                 mcp_config: { type: object }
+                curation:
+                  type: object
+                  description: |
+                    Toggle one extracted-knowledge item's keep/drop/pin status,
+                    merged into the source's curation map (status `kept` removes the
+                    override). Kept + pinned items feed facilitation instead of the
+                    raw transcript; pinned sorts first.
+                  properties:
+                    itemId: { type: string }
+                    status: { type: string, enum: [kept, pinned, dropped] }
+                  required: [itemId, status]
       responses:
         '200': { description: Updated source }
         '400': { description: No fields to update }
@@ -2568,8 +2579,8 @@ paths:
     patch:
       summary: Update a context source
       description: |
-        Update a context source's title, position, or mcp_config.
-        At least one field must be provided.
+        Update a context source's title, position, mcp_config, or a single
+        knowledge-curation toggle. At least one field must be provided.
         Requires a Pro, LTD, or ENTERPRISE subscription.
       operationId: updateContextSource
       tags: [Context Sources]
@@ -2598,6 +2609,17 @@ paths:
                 mcp_config:
                   type: object
                   description: Partial MCP config override (advanced use).
+                curation:
+                  type: object
+                  description: |
+                    Toggle one extracted-knowledge item's keep/drop/pin status
+                    (HAR-1155), merged into the source's curation map (status `kept`
+                    removes the override). Kept + pinned items feed facilitation
+                    instead of the raw transcript; pinned sorts first.
+                  properties:
+                    itemId: { type: string }
+                    status: { type: string, enum: [kept, pinned, dropped] }
+                  required: [itemId, status]
       responses:
         '200':
           description: Updated context source row
