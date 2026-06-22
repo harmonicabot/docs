@@ -677,7 +677,7 @@ components:
           format: uuid
         source_type:
           type: string
-          enum: [file, session, mcp]
+          enum: [file, session, mcp, url]
         title:
           type: string
         position:
@@ -2512,6 +2512,63 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
+  /sessions/{id}/context-sources/url:
+    post:
+      summary: Add a web page (URL) as a context source
+      description: |
+        Fetch a web page, scrape it to markdown, and add it as a context source.
+        The page is captured as a snapshot at add-time (`source_ref` holds the URL).
+        Use `/refresh` to re-scrape the latest version.
+
+        Requires a Pro, LTD, or ENTERPRISE subscription.
+        Maximum 20 sources per session.
+      operationId: addUrlContextSource
+      tags: [Context Sources]
+      parameters:
+        - $ref: '#/components/parameters/sessionId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [url]
+              properties:
+                url:
+                  type: string
+                  format: uri
+                  description: The http/https URL of the page to scrape. Private/local addresses are rejected.
+                title:
+                  type: string
+                  description: Human-readable title. Defaults to the scraped page title if omitted.
+      responses:
+        '201':
+          description: URL context source created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContextSource'
+        '400':
+          description: Validation error (missing/invalid URL, blocked host, empty/unreachable page)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: Insufficient permissions or tier
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Source cap reached (20 per session)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
   /sessions/{id}/context-sources/mcp:
     post:
       summary: Add an MCP server as a context source
@@ -2688,9 +2745,10 @@ paths:
     post:
       summary: Refresh a context source
       description: |
-        Re-fetch content for a session or MCP context source.
+        Re-fetch content for a session, MCP, or URL context source.
         - **session** sources: re-snapshot the source session's SESSION.md.
         - **mcp** sources: re-handshake the MCP server and update `cached_tools`.
+        - **url** sources: re-scrape the page from `source_ref`.
         - **file** sources: not supported — re-upload via POST /file instead (returns 422).
 
         Requires a Pro, LTD, or ENTERPRISE subscription.
