@@ -830,6 +830,149 @@ components:
           required: [generatedAt, model, version]
       required: [decisions, actions, tensions, claims, metadata]
 
+    CreateProjectRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          maxLength: 200
+          description: Project (workspace) title.
+        description:
+          type: string
+          maxLength: 2000
+          nullable: true
+          description: Optional project description (markdown).
+      required: [title]
+
+    Project:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        description:
+          type: string
+          nullable: true
+        status:
+          type: string
+          description: Project lifecycle status (active, draft, deleted).
+        is_public:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+      required: [id, title, status, is_public, created_at]
+
+    SensemakingSettingsRequest:
+      type: object
+      description: >-
+        Author + publish a project as a public sensemaking topic. All fields are
+        optional; send `enabled: true` (with a `slug` in this request or already
+        saved) to publish.
+      properties:
+        slug:
+          type: string
+          nullable: true
+          description: URL handle for /t/{slug}. Lowercase words separated by single hyphens.
+        title:
+          type: string
+          nullable: true
+          maxLength: 200
+        description:
+          type: string
+          nullable: true
+          maxLength: 500
+        intro:
+          type: string
+          nullable: true
+          maxLength: 2000
+          description: Host-authored background paragraph.
+        faq:
+          type: array
+          nullable: true
+          maxItems: 10
+          items:
+            type: object
+            properties:
+              q: { type: string }
+              a: { type: string }
+            required: [q, a]
+        theme:
+          type: string
+          nullable: true
+          description: Topic category powering the /explore hub filter.
+        enabled:
+          type: boolean
+          description: Publish (true) or unpublish (false) the public topic page.
+        reasoningLensEnabled:
+          type: boolean
+          description: Opt the embedding-based Reasoning lens in.
+        knowledgeStatementsEnabled:
+          type: boolean
+          description: Source opinion-map statements from project knowledge.
+
+    SensemakingTopic:
+      type: object
+      properties:
+        workspace_id:
+          type: string
+          format: uuid
+        enabled:
+          type: boolean
+        slug:
+          type: string
+          nullable: true
+        theme:
+          type: string
+          nullable: true
+        title:
+          type: string
+          nullable: true
+        description:
+          type: string
+          nullable: true
+        intro:
+          type: string
+          nullable: true
+        faq:
+          type: array
+          nullable: true
+          items:
+            type: object
+            properties:
+              q: { type: string }
+              a: { type: string }
+        group_count:
+          type: integer
+        statement_count:
+          type: integer
+        voter_count:
+          type: integer
+        computed_at:
+          type: string
+          format: date-time
+          nullable: true
+        gallery_status:
+          type: string
+        reasoning_lens_enabled:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+      required:
+        [
+          workspace_id,
+          enabled,
+          group_count,
+          statement_count,
+          voter_count,
+          gallery_status,
+          reasoning_lens_enabled,
+          created_at,
+        ]
+
     Error:
       type: object
       properties:
@@ -1128,6 +1271,118 @@ paths:
                 $ref: '#/components/schemas/Error'
         '404':
           description: Template not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /projects:
+    post:
+      summary: Create project
+      description: |
+        Creates an evergreen project (workspace) owned by the authenticated user.
+        Use the returned `id` to publish the project as a public sensemaking topic
+        via `PATCH /projects/{id}/sensemaking`, or reuse an existing project id you
+        already own.
+      operationId: createProject
+      tags: [Projects]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateProjectRequest'
+      responses:
+        '201':
+          description: Project created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        '400':
+          description: Validation error (missing title)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /projects/{id}/sensemaking:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      summary: Get project sensemaking topic
+      description: >-
+        Returns the project's sensemaking topic (publish status, slug, theme,
+        snapshot counts), or `data: null` if it was never published. Editor access
+        required.
+      operationId: getProjectSensemaking
+      tags: [Projects]
+      responses:
+        '200':
+          description: The sensemaking topic, or null
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    nullable: true
+                    allOf:
+                      - $ref: '#/components/schemas/SensemakingTopic'
+                required: [data]
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      summary: Publish project as sensemaking topic
+      description: |
+        Authors and publishes the project as a public sensemaking topic — the
+        `/explore` hub entry + the `/t/{slug}` page. Send `enabled: true` with a
+        `slug` (in this request or already saved) to publish; publishing builds the
+        public snapshot from the project's sessions. Editor access required.
+      operationId: publishProjectSensemaking
+      tags: [Projects]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SensemakingSettingsRequest'
+      responses:
+        '200':
+          description: Updated sensemaking topic
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SensemakingTopic'
+                required: [data]
+        '400':
+          description: Validation error (malformed slug, or publishing without a slug)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: The chosen slug is already taken
           content:
             application/json:
               schema:
