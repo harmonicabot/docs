@@ -105,12 +105,41 @@ Sessions across all your projects benefit from a shared organizational context. 
   </Card>
 </CardGroup>
 
-## Project summaries
+## Project knowledge
 
-Projects can have their own summaries that synthesize insights across all sessions within the project. This helps you:
-- See overarching themes
-- Track progress over time
-- Identify patterns across multiple sessions
+A project's **Knowledge** tab rolls up structured findings from every session it contains, so you can see what the whole body of work has surfaced — not just one session at a time.
+
+### What it collects
+
+Harmonica extracts typed findings from each session and aggregates them across the project into five categories:
+
+- **Decisions** — what the group concluded or committed to
+- **Tensions** — where perspectives diverged or trade-offs surfaced
+- **Actions** — concrete next steps that came out of the conversations
+- **Open questions** — what remains unresolved
+- **Themes** — recurring topics across sessions
+
+Each finding keeps a link to the participant evidence behind it, and findings that recur across several sessions are surfaced as such. Findings can also be drawn from imported context sources, not only live sessions.
+
+### A stable, findings-first layout
+
+The Knowledge tab renders the same layout every time: the findings first — grouped by the five categories, with a colour legend — followed by a synthesized narrative that ties the themes together. The layout does not reshuffle when you re-synthesize; regenerating refreshes the content, never the structure.
+
+### Keeping it current
+
+Click **Synthesise** to regenerate the project's knowledge after new sessions complete. The synthesis pass re-reads the project's sessions and imported sources and refreshes the narrative while preserving the stable structure.
+
+## Project context sources
+
+Like an individual session, a whole project can carry **context sources** — reference material the facilitator draws on across every session in the project. Open the **Sources** button in the project header to attach files or an MCP server at the project level; they apply to every session in the project, ahead of each session's own sources.
+
+The project view also lists the sources attached to individual sessions inside it (read-only), so you can see the full body of material feeding the project's knowledge in one place.
+
+See [Context sources](/guides/hosts/context-sources) for the available source types and limits.
+
+## Publishing a project as a public page
+
+You can publish a project as a public **Broad Listening** page, where anyone with the link can read its synthesized opinion landscape and react to the statements it surfaced — agree, disagree, or pass — without an account. Publishing is a deliberate action from the project's public settings, and you control the page's slug, intro, and theme. Projects can also be created and published programmatically through the [API](/api-reference/introduction).
 
 ## Best practices
 
@@ -136,12 +165,20 @@ Projects can have their own summaries that synthesize insights across all sessio
 
 Projects can have different statuses:
 
-- **Active**: Currently in use, visible on dashboard
-- **Draft**: Work in progress, not yet active
+- **Active**: Currently in use, visible on your dashboard
+- **Archived**: Set aside — hidden from your active dashboard but fully preserved and reversible
 - **Deleted**: Marked for deletion (will be removed)
 
+### Archiving a project
+
+When a project is finished but you want to keep its sessions and accumulated knowledge, **archive** it instead of deleting it. Archiving removes the project from your active dashboard without touching any of its data — no sessions, summaries, or knowledge are lost.
+
+Open a project's menu (from its dashboard card or the project page) and choose **Archive**. Archived projects drop out of the default dashboard view; you can surface them again and **unarchive** at any time to bring the project back to active.
+
+Use archiving to keep your dashboard focused on live work while holding on to completed projects for reference. Unlike deletion, it is fully reversible.
+
 <Warning>
-  Deleted projects and their sessions may be permanently removed. Make sure you want to delete before confirming.
+  Deleted projects and their sessions may be permanently removed. Make sure you want to delete before confirming. If you only want to tidy your dashboard, **archive** the project instead — archiving is reversible and keeps all data.
 </Warning>
 
 ## Nested projects
