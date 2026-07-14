@@ -2594,7 +2594,7 @@ paths:
                 title: { type: string }
       responses:
         '201': { description: Context source created }
-        '400': { description: Validation error (unsupported type, oversized, or a PDF with no extractable text) }
+        '400': { description: 'Validation error (unsupported type, oversized, or a PDF with no extractable text)' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { description: Insufficient permissions or tier }
         '422': { description: Source cap reached (20 per project) }
