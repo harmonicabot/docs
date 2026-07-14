@@ -489,6 +489,11 @@ components:
         template_id:
           type: string
           description: ID of a template to use
+        project_id:
+          type: string
+          description: |
+            Attach the new session to a project (workspace) at create time.
+            Requires editor access to the project.
         questions:
           type: array
           items:
@@ -843,6 +848,22 @@ components:
           nullable: true
           description: Optional project description (markdown).
       required: [title]
+
+    UpdateProjectRequest:
+      type: object
+      description: All fields optional; at least one must be provided.
+      minProperties: 1
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+          description: New project title.
+        description:
+          type: string
+          maxLength: 2000
+          nullable: true
+          description: New project description (markdown).
 
     Project:
       type: object
@@ -1307,6 +1328,156 @@ paths:
                 $ref: '#/components/schemas/Error'
         '401':
           $ref: '#/components/responses/Unauthorized'
+    get:
+      summary: List projects
+      description: List the projects (workspaces) the caller can access.
+      operationId: listProjects
+      tags: [Projects]
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+          description: Number of results per page
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+          description: Number of results to skip
+      responses:
+        '200':
+          description: List of projects
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Project'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+                required: [data, pagination]
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /projects/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      summary: Get project
+      description: Get a single project the caller can access, with the ids of its linked sessions.
+      operationId: getProject
+      tags: [Projects]
+      responses:
+        '200':
+          description: Project details
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Project'
+                  - type: object
+                    properties:
+                      session_ids:
+                        type: array
+                        items:
+                          type: string
+                          format: uuid
+                        description: IDs of sessions linked to this project.
+                    required: [session_ids]
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: No access to this project
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Project not found (or has been soft-deleted)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    patch:
+      summary: Update project
+      description: Rename a project or update its description.
+      operationId: updateProject
+      tags: [Projects]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProjectRequest'
+      responses:
+        '200':
+          description: Updated project
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        '400':
+          description: Validation error (no fields provided, or title/description exceeds length limits)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: Requires editor access to the project
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Project not found (or has been soft-deleted)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      summary: Delete project
+      description: |
+        Soft-deletes a project (sets status to `deleted`). Sessions contained in
+        the project are left intact — only the project record is marked deleted.
+        Requires owner access.
+      operationId: deleteProject
+      tags: [Projects]
+      responses:
+        '200':
+          description: Project deleted (status is now `deleted`)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: Requires owner access to the project
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Project not found (or has been soft-deleted)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
   /projects/{id}/sensemaking:
     parameters:
@@ -1583,6 +1754,13 @@ paths:
                 prompt:
                   type: string
                   description: Custom facilitation prompt for the AI facilitator
+                project_id:
+                  type: string
+                  nullable: true
+                  description: |
+                    Move the session into a project, or pass null to detach it
+                    from all projects. Requires editor access to the target
+                    project.
               minProperties: 1
       responses:
         '200':
@@ -1600,7 +1778,7 @@ paths:
               example:
                 error:
                   code: validation_error
-                  message: "No valid fields provided. Allowed fields: topic, goal, context, critical, prompt"
+                  message: "No valid fields provided. Allowed fields: topic, goal, context, critical, prompt, project_id"
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
