@@ -17,6 +17,18 @@ Upload a document — a brief, a research report, a product spec, or any plain t
 
 Use files when you want the facilitator to stay anchored in specific written material — for example, grounding a feedback session in an existing proposal, or keeping a planning session connected to a strategy document.
 
+### Meeting transcripts
+
+A meeting transcript is still a file, but Harmonica reads it differently: it recognises the speaker turns and tracks who said what, instead of treating the whole thing as one continuous document. Exports from Zoom or Meet work as they are, and a long transcript is chunked like any other large file.
+
+Detection happens automatically on upload. If you want to be explicit, or Harmonica reads it as a plain document, use **Mark as transcript** on the source in the sources list to set it yourself. Transcript sources carry a **(meeting)** label wherever they appear, so you can see at a glance which of your material is a conversation and which is a document.
+
+Marking a file as a transcript also makes it usable ground for a project's opinion map and its seed statements, so a recorded discussion can feed a public page the same way a written source can.
+
+<Note>
+  Marking a source as a transcript after it has been uploaded updates its label, but it does not re-read the file. Anything already extracted keeps the reading it was given when the file was first ingested.
+</Note>
+
 ### Sessions
 
 Reference another Harmonica session by ID. The referenced session's summary is attached to this session as context. This is useful for cross-pollination: a second session can build on what the first group said, even if the participants are completely different.
@@ -67,6 +79,7 @@ From the **Sources** tab, each attached source shows its title, type, and status
 
 - **Remove** — detaches the source. Existing conversations already in progress are not affected.
 - **Refresh** (session sources only) — updates the attached summary from the referenced session. Useful if that session has produced new results since you originally attached it.
+- **Mark as transcript** (file sources only) — tells Harmonica to read the file as a conversation between speakers rather than as a document. See [Meeting transcripts](#meeting-transcripts).
 
 <Tip>
   You can add and remove sources while a session is active. Changes apply to new conversations only — participants already mid-conversation won't see a different context mid-turn.
