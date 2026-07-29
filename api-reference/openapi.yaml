@@ -847,6 +847,10 @@ components:
           maxLength: 2000
           nullable: true
           description: Optional project description (markdown).
+        project_type:
+          type: string
+          enum: [broad-listening, team-os]
+          description: 'Project type, set at creation only and immutable afterwards. Omit for a standard project. A type governs behaviour (visibility, participation, which artifacts and public surfaces the project gets), not just labelling, so there is no conversion path between types.'
       required: [title]
 
     UpdateProjectRequest:
