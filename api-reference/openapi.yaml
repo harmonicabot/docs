@@ -1765,6 +1765,21 @@ paths:
                     Move the session into a project, or pass null to detach it
                     from all projects. Requires editor access to the target
                     project.
+                results_visibility:
+                  type: string
+                  enum: [public, participants, community, host]
+                  description: |
+                    Who can see aggregated session results. See
+                    `CreateSessionRequest.results_visibility` for the first
+                    three tiers.
+
+                    `community` opens results to members of the organization
+                    the session's project is bound to, in addition to the
+                    people who took part — it is additive, never a
+                    replacement. It is validated against the project the
+                    session will LAND in, so sending it together with a
+                    `project_id` that is not bound to an organization, or with
+                    `project_id: null`, is rejected with `validation_error`.
               minProperties: 1
       responses:
         '200':

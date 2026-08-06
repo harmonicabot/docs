@@ -9,6 +9,8 @@ Context sources are reference materials you attach to a session. The AI facilita
 
 Up to 20 sources can be attached per session. Adding sources is a Pro feature.
 
+Sources can be attached to a single session or to a whole project, where they apply to every session it contains. Files, sessions and MCP servers work at either level; [GitHub repositories](#github-repositories) are project-level only. See [Managing projects](/guides/hosts/managing-projects#project-context-sources) for the project-level view.
+
 ## Source types
 
 ### Files
@@ -34,6 +36,22 @@ Marking a file as a transcript also makes it usable ground for a project's opini
 Reference another Harmonica session by ID. The referenced session's summary is attached to this session as context. This is useful for cross-pollination: a second session can build on what the first group said, even if the participants are completely different.
 
 The snapshot is taken at the time you add the source. If the referenced session's summary changes later, use the **Refresh** action on the source to pull in the updated version.
+
+### GitHub repositories
+
+A **Team OS** project can connect a GitHub repository, and Harmonica reads that repository's markdown so every session in the project can draw on it. This is a project-level source, not a session-level one: connect it once and it applies across the project.
+
+Connect it from the project's **Memory record** card, using **Connect a repository**. You install Harmonica's GitHub app on the repositories you want to expose, then pick one from the list — Harmonica never asks you to paste a repository URL or a token.
+
+**What it reads.** All markdown files in the repository by default. You can narrow that to specific folders, picked from a list of the repository's actual folders rather than typed as a path. Files are chunked and indexed like any large file upload, so the facilitator retrieves the passages relevant to the conversation rather than reading the whole repository each turn.
+
+**What it tells you.** The source shows how many files and chunks it actually read, and how many it skipped with the reason — over the size budget, or individually too large. A repository that is bigger than the budget is read partially and says so, rather than quietly dropping content.
+
+**Keeping it current.** Use **Re-read** on the source to pull the repository again after it has changed. If a read fails, the source says so instead of silently serving stale content.
+
+<Note>
+  Disconnecting a repository severs the connection and its indexed content. It does not touch the entries already in the project's memory record — anything the record has accumulated stays.
+</Note>
 
 ### MCP servers
 

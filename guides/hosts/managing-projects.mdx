@@ -23,8 +23,18 @@ Projects are containers that help you:
     Go to your Harmonica dashboard where you'll see your sessions and projects.
   </Step>
   
-  <Step title="Create a new project">
-    Click "Create Project" or use the project creation option. You'll be prompted to:
+  <Step title="Choose a project type">
+    Click **New project**. The first thing you choose is the type, and there is no default — the menu always opens so you make the call deliberately:
+
+    - **Standard** — sessions and reports, private by default
+    - **Broad Listening** — a public conversation with an opinion map
+    - **Team OS** — a recurring record of what your team has settled and what is open
+
+    The type governs behaviour, not just labelling: it decides which publishing options the project gets and which artifacts it accumulates. **It is set once and cannot be changed afterwards**, so there is no conversion path between types. If you want a different type later, create a new project.
+  </Step>
+
+  <Step title="Fill in the basics">
+    You'll be prompted to:
     - Enter a project title
     - Add a description (optional)
     - Set location or other metadata (optional)
@@ -53,9 +63,14 @@ Projects are containers that help you:
 
 ### Visibility
 
-Projects can be:
-- **Public**: Visible to anyone with the link
-- **Private**: Only accessible to invited members
+A project's results visibility decides who can open its public pages. Set it from **Share settings**. There are four tiers:
+
+- **Public** — anyone with the link
+- **Members** — people who hold a permission on the project
+- **Organization** — members of an organization you bind the project to, even if they never took part. See [Organization access](#organization-access)
+- **Dashboard only** — nobody outside your own dashboard. This is the default
+
+**Organization** appears in the list only once the project is actually bound to an organization. A reader who is denied gets an explanation rather than a page that looks broken, and the page never names the project or the organization to someone who cannot read it.
 
 ### Appearance
 
@@ -143,9 +158,54 @@ You control it from the **Inherited by new sessions** card on the project's Know
 
 Sometimes you want people to react to where the whole project has landed, not just start another open conversation. From the same **Inherited by new sessions** card, an editor can click **Start a reflection session**. This creates a new session anchored on the project's accumulated map: participants are shown the settled points and open tensions from across the project's sessions and are facilitated to confirm them, correct them, or add what is missing. It is the explicit counterpart to inherited memory, useful for a checkpoint after several sessions or for bringing new people up to speed on where a body of work stands.
 
+## Team OS projects and the memory record
+
+A **Team OS** project keeps a **Memory record**: a persistent account of what your team has settled and what is still open. Where the Knowledge tab is recomputed from the project's sessions each time you synthesise, the memory record *persists and moves*. An entry that doesn't come up in one session is left alone rather than dropped.
+
+### How entries move
+
+Each entry carries a state, and synthesis proposes changes to it as new sessions land:
+
+- **Emerging** — newly surfaced, not yet corroborated
+- **Contested** — the group disagrees
+- **Settled** — the group has converged
+- **Reopened** — something settled has been challenged again
+- **Retired** — no longer live
+
+Entries group into decisions, tensions, questions and themes, the same categories the Knowledge tab uses.
+
+<Note>
+  Synthesis proposes, the host decides. If you set an entry's state yourself, no later session can move it back — your call sticks permanently.
+</Note>
+
+### Publishing the record
+
+A Team OS project can publish its memory record at its own public address. Choose the address and write a short intro from the record's publish settings; who can read it is governed by the project's [visibility tier](#visibility).
+
+You can unpublish at any time, including after retiring every entry, so you are never stuck with a live page you cannot take down.
+
+### Pushing back on an entry
+
+A reader of a published record can argue with an individual entry rather than only reading it. They open a short conversation about that entry, and the outcome goes back into the record: agreement corroborates it, disagreement can move a settled entry back to reopened, and a refinement is recorded against it.
+
+The action is deliberately not on every row. It is prominent on entries the group is still deciding — contested, reopened, or thinly corroborated — quiet on long-settled ones, and absent on retired ones. That weighting is how the page points at where the group actually wants attention.
+
+### Organization access
+
+Instead of inviting readers one at a time, you can bind a project to an organization and let its members read the results without having taken part. Two kinds of organization work:
+
+- **A member roster** — pick the organization from the list of those you belong to
+- **An email domain** — nominate a domain and anyone with a verified address at it can read. Free mail domains (gmail.com and similar) are refused
+
+You don't have to be at the domain you nominate, so an external consultant can open a client's project to that client's staff. Nominating a domain exposes your own project and grants you nothing of anyone else's.
+
+Once bound, **Organization** becomes selectable in the project's visibility tiers.
+
 ## Project context sources
 
 Like an individual session, a whole project can carry **context sources** — reference material the facilitator draws on across every session in the project. Open the **Sources** button in the project header to attach files or an MCP server at the project level; they apply to every session in the project, ahead of each session's own sources.
+
+A **Team OS** project can also connect a GitHub repository from its Memory record, so your own documentation feeds every session in the project. See [GitHub repositories](/guides/hosts/context-sources#github-repositories).
 
 The project view also lists the sources attached to individual sessions inside it (read-only), so you can see the full body of material feeding the project's knowledge in one place.
 
