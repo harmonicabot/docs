@@ -494,6 +494,37 @@ components:
           description: |
             Attach the new session to a project (workspace) at create time.
             Requires editor access to the project.
+        roster:
+          type: array
+          description: |
+            HAR-1582 - participants for a chain template's first step. Only
+            meaningful when template_id resolves to a chain template; ignored
+            otherwise.
+
+            Four of the live chain templates declare roles and an assignment
+            strategy (Delphi panel, Governance Meeting, Many-to-Many Readiness,
+            Example Mapping) and cannot bootstrap without a roster; for those,
+            omitting it returns chain.status "roster_incomplete" on an otherwise
+            successful create. The other seven declare no roles and start with
+            an empty roster.
+          items:
+            type: object
+            required: [email]
+            properties:
+              email:
+                type: string
+                format: email
+              displayName:
+                type: string
+              auth0Sub:
+                type: string
+              rolesByStep:
+                type: object
+                additionalProperties:
+                  type: string
+                description: |
+                  Chain step id to the role slug this participant holds. Read
+                  only for steps whose assignment_strategy is "explicit".
         questions:
           type: array
           items:
