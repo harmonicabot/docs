@@ -633,6 +633,32 @@ components:
             is_final:
               type: boolean
               description: Whether the facilitator considers this conversation complete
+            widget_spec:
+              type: object
+              description: >-
+                Structured widget the facilitator emitted on this turn. Present
+                only when the session has widgets_enabled and the model chose to
+                render a poll or rating or ranking instead of plain prose. The
+                facilitator also mirrors the widget into the text of content, so
+                a client that cannot render this spec should expect wording such
+                as "drag to rank these" with no control attached.
+              properties:
+                root:
+                  type: object
+                  description: The widget to render.
+                  properties:
+                    type:
+                      type: string
+                      enum: [SingleSelect, MultiSelect, RatingScale, RankingList]
+                    props:
+                      type: object
+                      description: Per-type rendering options such as labels or bounds.
+                    children:
+                      type: array
+                      items:
+                        type: string
+                  required: [type, props, children]
+              required: [root]
           required: [role, content, is_final]
         thread_id:
           type: string
