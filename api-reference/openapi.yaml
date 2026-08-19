@@ -725,6 +725,40 @@ components:
           type: string
           format: uri
           description: Direct URL for participants to join the session
+        chain:
+          type: object
+          description: >-
+            Outcome of chain bootstrap. Present only when template_id named a
+            chain template. Any status other than started or resumed means the
+            session was created and is real but is NOT running as a chain, so
+            treat this field as the authoritative signal rather than assuming
+            a 201 implies a running chain. The most common degraded status is
+            roster_incomplete, because several chain templates declare roles
+            and cannot start without a roster.
+          properties:
+            status:
+              type: string
+              enum:
+                - started
+                - resumed
+                - noop
+                - unsupported
+                - roster_incomplete
+                - step_cap_exceeded
+                - project_cap_exceeded
+            chainInstanceId:
+              type: string
+              description: Present when status is started or resumed.
+            stepId:
+              type: string
+              description: The first step of the chain. Present when status is started or resumed.
+            message:
+              type: string
+              description: Why the chain did not start. Present on the degraded statuses.
+            reason:
+              type: string
+              description: Present when status is noop.
+          required: [status]
       required: [id, topic, goal, status, participant_count, created_at, updated_at, join_url]
 
     ContextSource:
