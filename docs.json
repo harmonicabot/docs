@@ -78,7 +78,6 @@
               "PATCH /projects/{id}/sensemaking",
               "POST /sessions",
               "GET /sessions",
-              "GET /sessions/public",
               "GET /sessions/{id}",
               "PATCH /sessions/{id}",
               "GET /sessions/{id}/questions",
