@@ -1089,6 +1089,71 @@ components:
           created_at,
         ]
 
+    MeetingRestrictionEvent:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        sequence:
+          type: string
+          description: Monotonic append-only event sequence.
+        meeting_id: { type: string, format: uuid }
+        event_type:
+          type: string
+          enum: [restriction_set, candidate_flagged, candidate_confirmed, candidate_dismissed]
+        scopes:
+          type: array
+          items:
+            type: string
+            enum: [synthesis, project_attachment, external_export, sharing, all_downstream_processing]
+        reason: { type: string }
+        source:
+          type: string
+          enum: [owner, policy, transcript_signal]
+        actor_id: { type: string, nullable: true }
+        review_of_event_id: { type: string, format: uuid, nullable: true }
+        dedupe_key: { type: string, nullable: true }
+        created_at: { type: string, format: date-time }
+      required: [id, sequence, meeting_id, event_type, scopes, reason, source, created_at]
+    MeetingRestrictionState:
+      type: object
+      properties:
+        authoritative_scopes:
+          type: array
+          items: { type: string }
+        candidate_scopes:
+          type: array
+          items: { type: string }
+        effective_scopes:
+          type: array
+          items: { type: string }
+        pending_candidates:
+          type: array
+          items: { $ref: '#/components/schemas/MeetingRestrictionEvent' }
+        history:
+          type: array
+          items: { $ref: '#/components/schemas/MeetingRestrictionEvent' }
+      required: [authoritative_scopes, candidate_scopes, effective_scopes, pending_candidates, history]
+    SetMeetingRestrictionsRequest:
+      type: object
+      properties:
+        action: { type: string, const: set }
+        scopes:
+          type: array
+          description: Complete authoritative scope snapshot. Pass an empty array to lift restrictions.
+          items:
+            type: string
+            enum: [synthesis, project_attachment, external_export, sharing, all_downstream_processing]
+        reason: { type: string, minLength: 1, maxLength: 1000 }
+      required: [action, scopes, reason]
+    ReviewMeetingRestrictionCandidateRequest:
+      type: object
+      properties:
+        action: { type: string, const: review_candidate }
+        candidate_event_id: { type: string, format: uuid }
+        decision: { type: string, enum: [confirm, dismiss] }
+        reason: { type: string, minLength: 1, maxLength: 1000 }
+      required: [action, candidate_event_id, decision, reason]
+
     Error:
       type: object
       properties:
@@ -1461,6 +1526,55 @@ paths:
                 required: [data, pagination]
         '401':
           $ref: '#/components/responses/Unauthorized'
+
+  /meetings/{id}/restrictions:
+    get:
+      summary: Get meeting processing restrictions
+      description: Returns effective restriction scopes, pending transcript-derived candidates, and append-only provenance for a meeting owned by the authenticated user.
+      operationId: getMeetingRestrictions
+      tags: [Meetings]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Current restriction state and history
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MeetingRestrictionState' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    post:
+      summary: Update meeting processing restrictions
+      description: Sets the complete authoritative restriction scope or confirms/dismisses a pending transcript-derived candidate. Every mutation appends an event; history is never overwritten.
+      operationId: updateMeetingRestrictions
+      tags: [Meetings]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/SetMeetingRestrictionsRequest'
+                - $ref: '#/components/schemas/ReviewMeetingRestrictionCandidateRequest'
+              discriminator:
+                propertyName: action
+      responses:
+        '201':
+          description: Updated restriction state and history
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MeetingRestrictionState' }
+        '400': { description: Invalid scope, reason, candidate, or decision }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
 
   /projects/{id}:
     parameters:
