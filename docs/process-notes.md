@@ -9,3 +9,9 @@ Session-by-session decisions for the Harmonica docs site. Append-only, newest la
 - **State:** All three merged; every Mintlify build reported success, so no silent freeze. This repo is now the mirror — Pro's `docs/api-spec.yaml` is canonical as of HAR-1598.
 - **Note for future edits:** every description here is block style (`>-`). An inline flow-mapping description with commas is what froze this site for four weeks in 2026-06.
 - **Next:** none outstanding.
+
+## 2026-08-27 — distribution enum mirrored
+- **Done:** `api-reference/openapi.yaml` `DistributionTarget.channel` widened from `enum: [telegram]` to the reserved vocabulary (telegram, community-admin, slack, discord, buzz), mirroring Pro's canonical spec for HAR-1600 (`00bd015`). Description states that the enum is a namespace, not a delivery promise, and that non-dispatching values are rejected at write time.
+- **Decisions:** none — Pro is canonical, this repo mirrors.
+- **State:** In sync with Pro. Parity is now machine-enforced from Pro's CI across operations, schema names, property sets and enum values, so silent divergence is no longer possible.
+- **Next:** none. Note `raw.githubusercontent.com` trails a push by minutes; a parity red straight after a mirror push is CDN lag, verifiable via the GitHub API.
