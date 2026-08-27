@@ -573,8 +573,15 @@ components:
       properties:
         channel:
           type: string
-          enum: [telegram]
-          description: Distribution channel type
+          enum: [telegram, community-admin, slack, discord, buzz]
+          description: >-
+            Distribution channel. The enum is the RESERVED vocabulary; only a subset has a
+            live dispatcher behind it. A reserved channel without one is rejected at write
+            time (422 validation_error) rather than stored and silently ignored, so this
+            field never accepts something the platform will not act on. Live today:
+            `telegram`. The others are reserved so integrators can see the namespace.
+            Note `community-admin` is reserved but bound at the PROJECT level via community
+            binding, not per session through this field.
         group_id:
           type: string
           description: Channel-specific group identifier (e.g. Telegram chat ID)
