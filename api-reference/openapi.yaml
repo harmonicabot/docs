@@ -273,7 +273,6 @@ components:
 
     ChainConfig:
       type: object
-      additionalProperties: false
       description: >-
         Multi-step chain definition (used when template_type is 'chain').
         Validated server-side (HAR-915): at least one step, unique step ids,
@@ -285,11 +284,11 @@ components:
           minItems: 1
           items:
             type: object
-            additionalProperties: false
             required: [id]
             properties:
               id:
                 type: string
+                minLength: 1
               title:
                 type: string
               description:
@@ -300,24 +299,23 @@ components:
                 type: string
               context_mode:
                 type: string
-                enum: [none, previous_summary, all_summaries]
+                enum: [none, previous_summary, all_summaries, custom]
               context_template:
                 type: string
-                maxLength: 0
-                description: Legacy empty field. Non-empty custom context templates are not supported.
               individual_memory:
                 type: boolean
               roles:
                 type: array
                 items:
                   type: object
-                  additionalProperties: false
                   required: [slug, label]
                   properties:
                     slug:
                       type: string
+                      minLength: 1
                     label:
                       type: string
+                      minLength: 1
                     weight:
                       type: string
                       enum: [normal, elevated, lead]
@@ -327,50 +325,45 @@ components:
               completion_criteria:
                 oneOf:
                   - type: object
-                    additionalProperties: false
                     required: [type]
                     properties:
                       type: { type: string, enum: [host_continue] }
                   - type: object
-                    additionalProperties: false
                     required: [type]
                     properties:
                       type: { type: string, enum: [all_submitted] }
                   - type: object
-                    additionalProperties: false
                     required: [type, duration_seconds]
                     properties:
                       type: { type: string, enum: [timer] }
                       duration_seconds: { type: number, exclusiveMinimum: 0 }
                   - type: object
-                    additionalProperties: false
                     required: [type, count]
                     properties:
                       type: { type: string, enum: [quorum] }
                       count: { type: integer, minimum: 1 }
                   - type: object
-                    additionalProperties: false
                     required: [type, percent]
                     properties:
                       type: { type: string, enum: [quorum_percent] }
                       percent: { type: number, exclusiveMinimum: 0, maximum: 100 }
               dimension_ownership:
                 type: array
-                items: { type: string }
+                items: { type: string, minLength: 1 }
               pre_survey_config:
                 type: array
                 items:
                   type: object
                   required: [key, label, type, required]
                   properties:
-                    key: { type: string }
-                    label: { type: string }
+                    key: { type: string, minLength: 1 }
+                    label: { type: string, minLength: 1 }
                     type:
                       type: string
                       enum: [Short field, Email, Options]
                     options:
                       type: array
-                      items: { type: string }
+                      items: { type: string, minLength: 1 }
                     required: { type: boolean }
                     derive_options_from:
                       type: string
@@ -810,8 +803,6 @@ components:
                 - roster_incomplete
                 - step_cap_exceeded
                 - project_cap_exceeded
-                - project_creation_failed
-                - bootstrap_failed
             chainInstanceId:
               type: string
               description: Present when status is started or resumed.
