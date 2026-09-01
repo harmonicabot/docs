@@ -1629,7 +1629,7 @@ paths:
           content:
             application/json:
               schema: { $ref: '#/components/schemas/MeetingRestrictionState' }
-        '400': { description: Invalid scope, reason, candidate, or decision }
+        '400': { description: 'Invalid scope, reason, candidate, or decision' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
 
@@ -2802,8 +2802,9 @@ paths:
       description: |
         Upload a file (Markdown, plain text, or PDF) as a project-level context source.
         PDFs are extracted to text via pdf2json. Files whose text is <= 50 KB are stored
-        verbatim; larger files are chunked and embedded. Max 4 MB, max 20 sources per
-        project. Requires a Pro, LTD, or ENTERPRISE subscription.
+        verbatim; larger files are chunked and embedded. Max 4 MB. Ordinary files and
+        referenced-session snapshots share an independent 20-source project allowance.
+        Requires a Pro, LTD, or ENTERPRISE subscription.
       operationId: uploadProjectContextSourceFile
       tags: [Context Sources]
       parameters:
@@ -2829,13 +2830,49 @@ paths:
         '400': { description: 'Validation error (unsupported type, oversized, or a PDF with no extractable text)' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { description: Insufficient permissions or tier }
-        '422': { description: Source cap reached (20 per project) }
+        '422': { description: Static source limit reached (20 per project) }
+  /projects/{id}/context-sources/meeting:
+    post:
+      summary: Attach a meeting transcript as a project context source
+      description: |
+        Attach an owned meeting's ready transcript to a project while preserving
+        meeting-level provenance and processing restrictions. Repeated attachments are
+        idempotent. Meeting transcript sources have an independent 50-source project
+        allowance. Requires a Pro, LTD, or ENTERPRISE subscription.
+      operationId: addProjectContextSourceMeeting
+      tags: [Context Sources]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [meeting_id]
+              properties:
+                meeting_id:
+                  type: string
+                  description: ID of an owned meeting whose transcript is ready.
+                title: { type: string }
+      responses:
+        '200': { description: Existing ready meeting source returned }
+        '201': { description: Meeting transcript source created }
+        '202': { description: Existing meeting source is still processing }
+        '400': { description: 'Validation error or meeting transcript source limit reached (50 per project)' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { description: 'Insufficient permissions, tier, or meeting processing restricted' }
+        '404': { description: Meeting or transcript not found }
   /projects/{id}/context-sources/session:
     post:
       summary: Reference a session as a project context source
       description: |
         Snapshot another session's SESSION.md and attach it at the project level.
         Requires editor access on the project and viewer access on the source session.
+        Shares the independent 20-source static project allowance with ordinary files.
         Requires a Pro, LTD, or ENTERPRISE subscription.
       operationId: addProjectContextSourceSession
       tags: [Context Sources]
@@ -2861,13 +2898,14 @@ paths:
         '400': { description: Validation error (missing source_ref or source has no SESSION.md) }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { description: No access to project or source session }
-        '422': { description: Source cap reached (20 per project) }
+        '422': { description: Static source limit reached (20 per project) }
   /projects/{id}/context-sources/mcp:
     post:
       summary: Register an MCP server as a project context source
       description: |
         Register an MCP server at the project level. Performs a handshake to enumerate
-        tools and validates any allowlist. Requires a Pro, LTD, or ENTERPRISE subscription.
+        tools and validates any allowlist. MCP connections have an independent 20-source
+        project allowance. Requires a Pro, LTD, or ENTERPRISE subscription.
       operationId: addProjectContextSourceMcp
       tags: [Context Sources]
       parameters:
@@ -2895,7 +2933,7 @@ paths:
         '400': { description: Validation error (handshake failed or allowlist mismatch) }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { description: Insufficient permissions or tier }
-        '422': { description: Source cap reached (20 per project) }
+        '422': { description: MCP connection limit reached (20 per project) }
   /projects/{id}/context-sources/{source_id}:
     patch:
       summary: Update a project context source
