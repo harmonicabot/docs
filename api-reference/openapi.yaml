@@ -886,6 +886,100 @@ components:
           format: date-time
       required: [id, session_id, source_type, title, position, created_at, updated_at]
 
+    ProjectContextSourceManagementRow:
+      type: object
+      description: Compact project-management row. Stored source content and MCP bearer values are never included.
+      properties:
+        id: { type: string, format: uuid }
+        workspace_id: { type: string, format: uuid, nullable: true }
+        session_id: { type: string, format: uuid, nullable: true }
+        source_type:
+          type: string
+          enum: [file, session, mcp, url, repo]
+        source_class:
+          type: string
+          enum: [meeting, static, repository, mcp]
+        title: { type: string }
+        position: { type: integer }
+        content_mode:
+          type: string
+          enum: [verbatim, chunked]
+          nullable: true
+        file_meta: { type: object, nullable: true, additionalProperties: true }
+        source_ref: { type: string, nullable: true }
+        mcp_config:
+          type: object
+          nullable: true
+          description: Safe MCP metadata. The write-only bearer field is omitted.
+          additionalProperties: true
+        token_estimate: { type: integer, nullable: true }
+        extracted_knowledge: { type: object, nullable: true, additionalProperties: true }
+        knowledge_curation: { type: object, nullable: true, additionalProperties: true }
+        repo_config: { type: object, nullable: true, additionalProperties: true }
+        pending_statement_count: { type: integer, minimum: 0 }
+        session_topic:
+          type: string
+          nullable: true
+          description: Present on inherited session-owned rows.
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+      required:
+        - id
+        - workspace_id
+        - session_id
+        - source_type
+        - source_class
+        - title
+        - position
+        - content_mode
+        - file_meta
+        - source_ref
+        - mcp_config
+        - token_estimate
+        - extracted_knowledge
+        - knowledge_curation
+        - repo_config
+        - pending_statement_count
+        - created_at
+        - updated_at
+
+    ProjectSourceQuota:
+      type: object
+      properties:
+        source_class:
+          type: string
+          enum: [meeting, static, repository, mcp]
+        count: { type: integer, minimum: 0 }
+        limit: { type: integer, minimum: 1 }
+      required: [source_class, count, limit]
+
+    ProjectSourcePagination:
+      type: object
+      properties:
+        scope:
+          type: string
+          enum: [project, inherited]
+        total: { type: integer, minimum: 0 }
+        limit: { type: integer, minimum: 1, maximum: 100 }
+        next_cursor: { type: string, nullable: true }
+      required: [scope, total, limit, next_cursor]
+
+    ProjectContextSourceListResponse:
+      type: object
+      properties:
+        sources:
+          type: array
+          items: { $ref: '#/components/schemas/ProjectContextSourceManagementRow' }
+        inheritedSources:
+          type: array
+          items: { $ref: '#/components/schemas/ProjectContextSourceManagementRow' }
+        pagination:
+          $ref: '#/components/schemas/ProjectSourcePagination'
+        quotas:
+          type: array
+          items: { $ref: '#/components/schemas/ProjectSourceQuota' }
+      required: [sources, inheritedSources]
+
     SessionKnowledge:
       type: object
       description: |
@@ -2760,12 +2854,17 @@ paths:
     get:
       summary: List project context sources
       description: |
-        List the project (workspace) level context sources, ordered by position then
-        created_at. Project sources apply to every session inside the project (merged
-        ahead of each session's own sources, MCP deduped by URL). `inheritedSources`
-        (HAR-1166) additionally lists every source attached to a session inside the
-        project — read-only here, managed on its session, each tagged with `session_topic`.
-        No tier check on read.
+        List compact project-source management rows. Stored source content and MCP
+        bearer values are never returned. With no query parameters, the endpoint keeps
+        the legacy unpaginated `{ sources, inheritedSources }` envelope. Supplying
+        `scope=project|inherited` activates stable cursor pagination, literal
+        case-insensitive title/session-topic search, quota-class filtering, corpus-wide
+        project quota counters, and batched pending-statement counts.
+
+        Project scope is ordered by `position`, `created_at`, then `id`, ascending.
+        Inherited scope is ordered by `created_at`, then `id`, ascending. Project sources
+        apply to every session inside the project. Inherited sources are read-only here
+        and managed on their session. No tier check on read.
       operationId: listProjectContextSources
       tags: [Context Sources]
       parameters:
@@ -2774,24 +2873,43 @@ paths:
           required: true
           description: Project (workspace) ID.
           schema: { type: string }
+        - name: scope
+          in: query
+          description: Activates the paginated management contract and selects one source section.
+          schema:
+            type: string
+            enum: [project, inherited]
+        - name: limit
+          in: query
+          description: Page size. Requires `scope`.
+          schema: { type: integer, minimum: 1, maximum: 100, default: 20 }
+        - name: cursor
+          in: query
+          description: Opaque next-page cursor from the same scope, search, and source-class filter.
+          schema: { type: string }
+        - name: q
+          in: query
+          description: Literal case-insensitive search over source titles and inherited session topics. Requires `scope`.
+          schema: { type: string, maxLength: 200 }
+        - name: source_class
+          in: query
+          description: Filter by the same source class used for project quota accounting. Requires `scope`.
+          schema:
+            type: string
+            enum: [meeting, static, repository, mcp]
       responses:
         '200':
           description: Project context sources
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  sources:
-                    type: array
-                    items: { type: object }
-                  inheritedSources:
-                    type: array
-                    description: Session-attached sources surfaced read-only at the project level.
-                    items:
-                      type: object
-                      properties:
-                        session_topic: { type: string, nullable: true }
+                $ref: '#/components/schemas/ProjectContextSourceListResponse'
+        '400':
+          description: 'Invalid scope, limit, cursor, query, or source class'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
