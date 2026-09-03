@@ -978,6 +978,23 @@ components:
         quotas:
           type: array
           items: { $ref: '#/components/schemas/ProjectSourceQuota' }
+      required: [sources, inheritedSources, pagination, quotas]
+
+    LegacyProjectContextSourceListResponse:
+      type: object
+      description: Legacy unpaginated response retained for callers that omit all management query parameters.
+      properties:
+        sources:
+          type: array
+          items: { $ref: '#/components/schemas/ContextSource' }
+        inheritedSources:
+          type: array
+          items:
+            allOf:
+              - $ref: '#/components/schemas/ContextSource'
+              - type: object
+                properties:
+                  session_topic: { type: string, nullable: true }
       required: [sources, inheritedSources]
 
     SessionKnowledge:
@@ -2854,10 +2871,10 @@ paths:
     get:
       summary: List project context sources
       description: |
-        List compact project-source management rows. Stored source content and MCP
-        bearer values are never returned. With no query parameters, the endpoint keeps
-        the legacy unpaginated `{ sources, inheritedSources }` envelope. Supplying
-        `scope=project|inherited` activates stable cursor pagination, literal
+        With no query parameters, the endpoint preserves the legacy unpaginated full
+        source rows in the `{ sources, inheritedSources }` envelope; MCP bearer values
+        remain redacted. Supplying `scope=project|inherited` activates compact rows
+        that never include stored source content or MCP bearer values, stable cursor pagination, literal
         case-insensitive title/session-topic search, quota-class filtering, corpus-wide
         project quota counters, and batched pending-statement counts.
 
@@ -2903,7 +2920,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ProjectContextSourceListResponse'
+                oneOf:
+                  - $ref: '#/components/schemas/LegacyProjectContextSourceListResponse'
+                  - $ref: '#/components/schemas/ProjectContextSourceListResponse'
         '400':
           description: 'Invalid scope, limit, cursor, query, or source class'
           content:
