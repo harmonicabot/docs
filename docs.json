@@ -74,6 +74,7 @@
               "GET /projects/{id}",
               "PATCH /projects/{id}",
               "DELETE /projects/{id}",
+              "POST /projects/{id}/context-sources/meetings",
               "GET /meetings/{id}/restrictions",
               "POST /meetings/{id}/restrictions",
               "GET /projects/{id}/sensemaking",
