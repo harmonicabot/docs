@@ -83,6 +83,8 @@
               "GET /sessions",
               "GET /sessions/{id}",
               "PATCH /sessions/{id}",
+              "POST /sessions/{id}/close",
+              "POST /sessions/{id}/reopen",
               "GET /sessions/{id}/questions",
               "GET /sessions/{id}/responses",
               "POST /sessions/{id}/responses",

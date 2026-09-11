@@ -2213,6 +2213,69 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 
+  /sessions/{id}/close:
+    post:
+      summary: Close session
+      description: |
+        Close a session so new participant activity is no longer accepted.
+        Requires editor access or higher. The operation is idempotent and changes
+        only the session's active status; participant threads, messages, summaries,
+        and other session data are preserved.
+      operationId: closeSession
+      tags: [Sessions]
+      parameters:
+        - $ref: '#/components/parameters/sessionId'
+      responses:
+        '200':
+          description: Closed session
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Session'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /sessions/{id}/reopen:
+    post:
+      summary: Reopen session
+      description: |
+        Reopen a completed session so participants can join or continue again.
+        Requires editor access or higher. The operation is idempotent and changes
+        only the session's active status; existing session data is preserved.
+      operationId: reopenSession
+      tags: [Sessions]
+      parameters:
+        - $ref: '#/components/parameters/sessionId'
+      responses:
+        '200':
+          description: Reopened session
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Session'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
   /sessions/{id}/questions:
     get:
       summary: Get session questions
