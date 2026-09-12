@@ -48,6 +48,21 @@ Sessions can be toggled between:
 
 This is useful when you want to close a session to new responses without deleting it.
 
+### Closing and reopening
+
+Closing a session stops new participant activity while keeping everything the session
+produced. Participant threads, messages, summaries and other session data are preserved,
+so closing is never destructive and is safe to undo.
+
+Reopening a closed session makes it active again, so participants can join or continue
+where they left off.
+
+Both actions are available on the session itself, through the
+[API](/api-reference/introduction) as `POST /sessions/{id}/close` and
+`POST /sessions/{id}/reopen`, and through the
+[MCP server](/api-reference/mcp-server) as `close_session` and `reopen_session`.
+Closing requires editor access or higher.
+
 ## Visibility settings
 
 Control what participants and collaborators can see:
