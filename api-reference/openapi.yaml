@@ -2059,6 +2059,10 @@ paths:
       summary: List sessions
       description: |
         Returns sessions the authenticated user has access to (owns or participates in).
+        API keys remain account-scoped by default. A key created by a current global
+        admin with the explicit `platform_sessions:read_metadata` capability may pass
+        `scope=platform` to list platform-wide session metadata. That capability does
+        not grant access to per-session reads, participant responses, or mutations.
         Results are ordered by most recently updated first.
       operationId: listSessions
       tags: [Sessions]
@@ -2089,6 +2093,15 @@ paths:
             default: 0
             minimum: 0
           description: Number of results to skip
+        - name: scope
+          in: query
+          schema:
+            type: string
+            enum: [account, platform]
+            default: account
+          description: |
+            Listing scope. `platform` requires both an explicitly capable API key
+            and a current global-admin grant for its owner.
         - name: distribution_channel
           in: query
           schema:
@@ -2113,10 +2126,23 @@ paths:
                     items:
                       $ref: '#/components/schemas/SessionListItem'
                   pagination:
-                    $ref: '#/components/schemas/Pagination'
+                    allOf:
+                      - $ref: '#/components/schemas/Pagination'
+                      - type: object
+                        properties:
+                          scope:
+                            type: string
+                            enum: [account, platform]
+                        required: [scope]
                 required: [data, pagination]
         '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: Platform scope requires a specifically authorized admin API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
   /sessions/{id}:
     get:
