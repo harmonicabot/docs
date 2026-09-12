@@ -5,6 +5,54 @@ description: "Connect AI agents to Harmonica via Model Context Protocol"
 
 The [Harmonica MCP server](https://github.com/harmonicabot/harmonica-mcp) lets AI agents create and interact with deliberation sessions. Available on [npm](https://www.npmjs.com/package/harmonica-mcp).
 
+There are two ways to connect. The **hosted endpoint** needs nothing installed and is the
+simplest option for a client that supports remote MCP servers. The **npm package** runs
+locally over stdio and is what OSS and self-hosted instances use.
+
+## Hosted endpoint
+
+Point any client that supports remote MCP servers at:
+
+```
+https://app.harmonica.chat/api/mcp/mcp
+```
+
+The transport is streamable HTTP. Every request must be authenticated. Send the same
+`hm_live_...` API key from [Get an API key](#1-get-an-api-key) as a bearer token:
+
+```
+Authorization: Bearer hm_live_your_key_here
+```
+
+<CodeGroup>
+
+```bash Claude Code (CLI)
+claude mcp add --transport http harmonica \
+  https://app.harmonica.chat/api/mcp/mcp \
+  --header "Authorization: Bearer hm_live_your_key_here"
+```
+
+```json Remote MCP config
+{
+  "mcpServers": {
+    "harmonica": {
+      "type": "http",
+      "url": "https://app.harmonica.chat/api/mcp/mcp",
+      "headers": {
+        "Authorization": "Bearer hm_live_your_key_here"
+      }
+    }
+  }
+}
+```
+
+</CodeGroup>
+
+Signing in with your Harmonica account instead of pasting a key is not available yet, so an
+API key is currently the only credential the hosted endpoint accepts.
+
+The hosted endpoint exposes the same tools as the npm package, listed below.
+
 ## Setup
 
 ### 1. Get an API key
