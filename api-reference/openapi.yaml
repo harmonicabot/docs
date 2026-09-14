@@ -1341,6 +1341,218 @@ components:
           created_at,
         ]
 
+    Meeting:
+      type: object
+      description: Calendar meeting metadata. Direct Project-derived reads redact meeting_url and raw error_message to null.
+      properties:
+        id: { type: string, format: uuid }
+        title: { type: string }
+        meeting_url: { type: string, format: uri, nullable: true }
+        meeting_provider:
+          type: string
+          enum: [google_meet, zoom, microsoft_teams]
+        starts_at: { type: string, format: date-time }
+        ends_at: { type: string, format: date-time, nullable: true }
+        timezone: { type: string, nullable: true }
+        status:
+          type: string
+          enum: [scheduled, joining, in_call, recording, transcribing, ready, failed, cancelled]
+        error_code: { type: string, nullable: true }
+        error_message:
+          type: string
+          nullable: true
+          description: Raw meeting failure detail for the owner; null for Project-derived readers.
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+      required: [id, title, meeting_url, meeting_provider, starts_at, ends_at, timezone, status, error_code, error_message, created_at, updated_at]
+    TranscriptSourceProvenance:
+      type: object
+      properties:
+        kind:
+          type: string
+          enum: [harmonica_capture, provider_import, manual_import]
+        provider:
+          type: string
+          description: Source provider name. Provider names are extensible rather than a closed enum.
+      required: [kind, provider]
+    TranscriptProcessingProvenance:
+      type: object
+      properties:
+        provider: { type: string }
+        model: { type: string }
+        normalization_version: { type: string }
+        attempt_status:
+          type: string
+          enum: [pending, processing, succeeded, failed]
+        failure_stage:
+          type: string
+          enum: [capture, transcription, normalization, persistence, unknown]
+          nullable: true
+        failure_disposition:
+          type: string
+          enum: [retryable, terminal]
+          nullable: true
+        error_code: { type: string, nullable: true }
+        error_message:
+          type: string
+          nullable: true
+          description: Raw detail for the owner; Project-derived readers receive only a safe generic message.
+        started_at: { type: string, format: date-time, nullable: true }
+        completed_at: { type: string, format: date-time, nullable: true }
+      required: [provider, model, normalization_version, attempt_status, failure_stage, failure_disposition, error_code, error_message, started_at, completed_at]
+    MeetingTranscriptMetadata:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        meeting_id: { type: string, format: uuid }
+        status:
+          type: string
+          enum: [processing, ready, failed]
+        availability:
+          type: string
+          enum: [pending, ready, retryable_failure, terminal_failure, restricted]
+        language: { type: string, nullable: true }
+        revision:
+          type: integer
+          minimum: 1
+          nullable: true
+          description: Advances only when canonical transcript content changes.
+        content_hash:
+          type: string
+          pattern: '^sha256:[0-9a-f]{64}$'
+          nullable: true
+        restriction_revision:
+          type: string
+          pattern: '^\d+$'
+          description: Latest restriction event sequence, or "0". Cache checks compare this with content_hash.
+        completed_at: { type: string, format: date-time, nullable: true }
+        source: { $ref: '#/components/schemas/TranscriptSourceProvenance' }
+        processing: { $ref: '#/components/schemas/TranscriptProcessingProvenance' }
+      required: [id, meeting_id, status, availability, language, revision, content_hash, restriction_revision, completed_at, source, processing]
+    MeetingListItem:
+      allOf:
+        - $ref: '#/components/schemas/Meeting'
+        - type: object
+          properties:
+            transcript_status:
+              type: string
+              enum: [processing, ready, failed]
+              nullable: true
+            transcript_language: { type: string, nullable: true }
+            has_transcript: { type: boolean }
+            empty_transcript: { type: boolean }
+            utterance_count: { type: integer, minimum: 0 }
+            speaker_count: { type: integer, minimum: 0 }
+            actual_duration_ms: { type: integer, minimum: 0, nullable: true }
+            effective_restriction_scopes:
+              type: array
+              items:
+                type: string
+                enum: [synthesis, project_attachment, external_export, sharing, all_downstream_processing]
+            project_attachment_count: { type: integer, minimum: 0 }
+            transcript:
+              allOf:
+                - $ref: '#/components/schemas/MeetingTranscriptMetadata'
+              nullable: true
+          required: [transcript_status, transcript_language, has_transcript, empty_transcript, utterance_count, speaker_count, actual_duration_ms, effective_restriction_scopes, project_attachment_count, transcript]
+    MeetingListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/MeetingListItem' }
+        pagination:
+          type: object
+          properties:
+            total: { type: integer, minimum: 0 }
+            limit: { type: integer, minimum: 1, maximum: 100 }
+            offset: { type: integer, minimum: 0 }
+            next_cursor: { type: string, nullable: true }
+          required: [total, limit, offset, next_cursor]
+      required: [data, pagination]
+    MeetingDetail:
+      allOf:
+        - $ref: '#/components/schemas/Meeting'
+        - type: object
+          properties:
+            access_basis: { type: string, enum: [owner, project] }
+            transcript:
+              allOf:
+                - $ref: '#/components/schemas/MeetingTranscriptMetadata'
+              nullable: true
+          required: [access_basis, transcript]
+    TranscriptSegment:
+      type: object
+      description: A bounded part of one source speaker turn. Adjacent segments with the same sequence may be joined.
+      properties:
+        sequence: { type: integer, minimum: 0 }
+        speaker_id: { type: string, nullable: true }
+        speaker_name: { type: string, nullable: true }
+        speaker_email:
+          type: string
+          nullable: true
+          description: Present only when an owner explicitly requests it in turns format. Provider labels are unverified identity claims.
+        start_ms: { type: integer, minimum: 0, nullable: true }
+        end_ms: { type: integer, minimum: 0, nullable: true }
+        text: { type: string }
+        language: { type: string, nullable: true }
+        continues_before: { type: boolean }
+        continues_after: { type: boolean }
+        text_offset: { type: integer, minimum: 0 }
+      required: [sequence, speaker_id, speaker_name, start_ms, end_ms, text, language, continues_before, continues_after, text_offset]
+    MeetingTranscriptPagination:
+      type: object
+      properties:
+        limit: { type: integer, minimum: 1, maximum: 200 }
+        max_chars: { type: integer, minimum: 1000, maximum: 50000 }
+        returned_chars: { type: integer, minimum: 0, maximum: 50000 }
+        next_cursor: { type: string, nullable: true }
+        complete: { type: boolean }
+      required: [limit, max_chars, returned_chars, next_cursor, complete]
+    MeetingTranscriptPage:
+      type: object
+      description: Exactly one bounded transcript page. The server never follows next_cursor automatically.
+      properties:
+        transcript: { $ref: '#/components/schemas/MeetingTranscriptMetadata' }
+        access_basis: { type: string, enum: [owner, project] }
+        segments:
+          type: array
+          items: { $ref: '#/components/schemas/TranscriptSegment' }
+        text:
+          type: string
+          description: Plain-text rendering returned for format=text. Speaker email is never included.
+        pagination: { $ref: '#/components/schemas/MeetingTranscriptPagination' }
+      required: [transcript, access_basis, pagination]
+      oneOf:
+        - required: [segments]
+        - required: [text]
+    CompleteTranscriptTurn:
+      type: object
+      properties:
+        sequence: { type: integer, minimum: 0 }
+        speaker_id: { type: string, nullable: true }
+        speaker_name: { type: string, nullable: true }
+        speaker_email: { type: string, nullable: true }
+        start_ms: { type: integer, minimum: 0, nullable: true }
+        end_ms: { type: integer, minimum: 0, nullable: true }
+        text: { type: string }
+        language: { type: string, nullable: true }
+      required: [sequence, speaker_id, speaker_name, speaker_email, start_ms, end_ms, text, language]
+    MeetingTranscriptExport:
+      type: object
+      properties:
+        exported_at: { type: string, format: date-time }
+        meeting: { $ref: '#/components/schemas/Meeting' }
+        transcript:
+          allOf:
+            - $ref: '#/components/schemas/MeetingTranscriptMetadata'
+            - type: object
+              properties:
+                utterances:
+                  type: array
+                  items: { $ref: '#/components/schemas/CompleteTranscriptTurn' }
+              required: [utterances]
+      required: [exported_at, meeting, transcript]
     MeetingRestrictionEvent:
       type: object
       properties:
@@ -1420,6 +1632,8 @@ components:
                 - not_found
                 - validation_error
                 - rate_limited
+                - payment_required
+                - transcript_revision_changed
                 - internal_error
                 - unprocessable
             message:
@@ -1779,6 +1993,221 @@ paths:
         '401':
           $ref: '#/components/responses/Unauthorized'
 
+  /meetings:
+    get:
+      summary: List owned meetings
+      description: |
+        Lists only personal calendar meetings owned by the API-key user. Project
+        membership never expands this catalogue. Results include compact transcript
+        currentness, processing provenance, safe restriction scopes, and Project
+        attachment counts without transcript text. Provider speaker labels remain
+        unverified source labels and do not establish identity across recordings.
+      operationId: listMeetings
+      tags: [Meetings]
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [scheduled, joining, in_call, recording, transcribing, ready, failed, cancelled]
+        - name: provider
+          in: query
+          schema:
+            type: string
+            enum: [google_meet, zoom, microsoft_teams]
+        - name: attachment
+          in: query
+          description: Filter by whether the meeting is attached to at least one Project.
+          schema:
+            type: string
+            enum: [attached, unattached]
+        - name: from
+          in: query
+          description: Include meetings starting at or after this timestamp.
+          schema: { type: string, format: date-time }
+        - name: to
+          in: query
+          description: Include meetings starting before this timestamp.
+          schema: { type: string, format: date-time }
+        - name: updated_since
+          in: query
+          description: Include meetings updated at or after this timestamp.
+          schema: { type: string, format: date-time }
+        - name: limit
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 100, default: 20 }
+        - name: offset
+          in: query
+          description: Legacy offset pagination. Cannot be combined with a non-first-page cursor.
+          schema: { type: integer, minimum: 0, default: 0 }
+        - name: cursor
+          in: query
+          description: Opaque stable cursor returned by the previous meeting page.
+          schema: { type: string, minLength: 1 }
+      responses:
+        '200':
+          description: Owner-scoped meeting page
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MeetingListResponse' }
+        '400':
+          description: Invalid filter, date range, or cursor
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+  /meetings/{id}:
+    get:
+      summary: Get meeting metadata
+      description: |
+        Returns full metadata to the meeting owner. A named viewer-or-higher member
+        of a non-deleted Project with a current meeting attachment may read redacted
+        metadata. Public and platform-global grants do not confer access. Missing and
+        unauthorized meetings both return 404. Project-derived responses redact the
+        meeting URL and raw errors and require sharing policy to remain allowed.
+      operationId: getMeeting
+      tags: [Meetings]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Authorized meeting detail
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MeetingDetail' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404':
+          description: Meeting not found, not shared, detached, deleted, or restricted
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+  /meetings/{id}/transcript:
+    get:
+      summary: Get a bounded transcript page
+      description: |
+        Returns one page bounded by both segment count and Unicode code-point text
+        budget. It never auto-follows next_cursor. A cursor is bound to transcript ID
+        and revision and may continue within one oversized speaker turn. If canonical
+        content changes, an old cursor returns 409 transcript_revision_changed and the
+        caller must restart from page one.
+
+        The owner or a named viewer-or-higher member of a non-deleted Project with a
+        current attachment may read subject to external_export policy; Project-derived
+        access additionally requires sharing policy. Project-derived denial returns the
+        same 404 as an unknown meeting. Speaker names, IDs, and emails are unverified
+        provider labels and must not be treated as cross-recording identity.
+      operationId: getMeetingTranscript
+      tags: [Meetings]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - name: format
+          in: query
+          schema: { type: string, enum: [turns, text], default: turns }
+        - name: limit
+          in: query
+          description: Maximum number of returned segments.
+          schema: { type: integer, minimum: 1, maximum: 200, default: 100 }
+        - name: max_chars
+          in: query
+          description: Maximum transcript-text code points returned. JSON framing and fixed metadata are outside this budget.
+          schema: { type: integer, minimum: 1000, maximum: 50000, default: 25000 }
+        - name: cursor
+          in: query
+          description: Opaque revision-bound cursor from the previous transcript page.
+          schema: { type: string, minLength: 1 }
+        - name: include_speaker_email
+          in: query
+          description: Owner-only and turns-only. Project-derived requests with true fail closed.
+          schema: { type: boolean, default: false }
+      responses:
+        '200':
+          description: One bounded transcript page
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MeetingTranscriptPage' }
+        '400':
+          description: Invalid format, bounds, boolean, or cursor
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403':
+          description: Owner transcript access is restricted
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '404':
+          description: Transcript unavailable or meeting access not found
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '409':
+          description: Transcript revision changed; restart from page one
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+  /meetings/{id}/transcript/export:
+    get:
+      summary: Export the complete current transcript
+      description: |
+        Owner-only complete JSON export. The export is intentionally unavailable as
+        an MCP tool, requires a ready canonical transcript, and checks external_export
+        policy immediately before one revision-consistent read. It excludes restriction
+        rationale/history and raw provider artifact identifiers.
+      operationId: exportMeetingTranscript
+      tags: [Meetings]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Complete revision-consistent transcript download
+          headers:
+            Content-Disposition:
+              schema: { type: string }
+              description: Server-sanitized, bounded attachment filename.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MeetingTranscriptExport' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403':
+          description: Transcript export is restricted
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '404':
+          description: Meeting or ready transcript not found, including all non-owner access
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
   /meetings/{id}/restrictions:
     get:
       summary: Get meeting processing restrictions
