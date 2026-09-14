@@ -3598,9 +3598,21 @@ paths:
                   description: ID of an owned meeting whose transcript is ready.
                 title: { type: string }
       responses:
-        '200': { description: Existing ready meeting source returned }
-        '201': { description: Meeting transcript source created }
-        '202': { description: Existing meeting source is still processing }
+        '200':
+          description: Existing ready meeting source returned
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MeetingAttachmentSource' }
+        '201':
+          description: Meeting transcript source created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MeetingAttachmentSource' }
+        '202':
+          description: Existing meeting source is still processing
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MeetingAttachmentSource' }
         '400': { description: 'Validation error or meeting transcript source limit reached (50 per project)' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { description: 'Insufficient permissions, tier, or meeting processing restricted' }
