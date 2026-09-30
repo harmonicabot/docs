@@ -1137,6 +1137,10 @@ components:
                 type: array
                 items:
                   type: string
+              basis:
+                type: [string, 'null']
+                enum: [values, knowledge, null]
+                description: Knowledge if a further fact could settle the disagreement; values otherwise.
             required: [summary, sides, evidence]
         claims:
           type: array
