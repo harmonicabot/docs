@@ -38,7 +38,7 @@ components:
           enum: [chain_not_active, step_not_active, invalid_snapshot, unassigned_roles, completion_not_met, summary_required]
         message: { type: string }
         step_id: { type: string }
-        session_id: { type: string, nullable: true }
+        session_id: { type: [string, 'null'] }
     ChainStepState:
       type: object
       required: [step_id, step_index, template_step_id, session_id, status, title]
@@ -46,7 +46,7 @@ components:
         step_id: { type: string }
         step_index: { type: integer }
         template_step_id: { type: string }
-        session_id: { type: string, nullable: true }
+        session_id: { type: [string, 'null'] }
         status:
           type: string
           enum: [pending, active, awaiting, completed, failed, skipped]
@@ -60,8 +60,8 @@ components:
           type: string
           enum: [pending, active, awaiting, paused, completed, failed, cancelled]
         current_step_index: { type: integer }
-        current_step_id: { type: string, nullable: true }
-        current_session_id: { type: string, nullable: true }
+        current_step_id: { type: [string, 'null'] }
+        current_session_id: { type: [string, 'null'] }
         can_advance:
           type: boolean
           description: Advisory snapshot; eligibility is rechecked under the chain lock when continuing.
@@ -75,10 +75,9 @@ components:
         total_assignments: { type: integer }
         completed_assignments: { type: integer }
         required_assignments:
-          type: integer
-          nullable: true
+          type: [integer, 'null']
           description: Completion threshold for assignment-based gates; zero assignments still cannot complete an automatic gate.
-        timer_ready_at: { type: string, format: date-time, nullable: true }
+        timer_ready_at: { type: [string, 'null'], format: date-time }
         steps:
           type: array
           items:
@@ -92,8 +91,8 @@ components:
         action:
           type: string
           enum: [advanced, closed]
-        next_step_id: { type: string, nullable: true }
-        next_session_id: { type: string, nullable: true }
+        next_step_id: { type: [string, 'null'] }
+        next_session_id: { type: [string, 'null'] }
         actor_id: { type: string }
         auth_method:
           type: string
