@@ -51,7 +51,28 @@ claude mcp add --transport http harmonica \
 Signing in with your Harmonica account instead of pasting a key is not available yet, so an
 API key is currently the only credential the hosted endpoint accepts.
 
-The hosted endpoint exposes the same tools as the npm package, listed below.
+The core tools below are shared with the npm package. Tools explicitly marked
+**hosted only** run in the application runtime and are not available in the npm adapter.
+
+### Host chain control (hosted only)
+
+Use `get_chain_state` with any `session_id` in a chain. It returns the current
+step ID, stable session/step IDs, assignment thresholds or timer readiness, and
+actionable blockers. Owner/admin access to the origin session is required;
+owning a later step or being a project editor alone is not enough.
+
+When `can_advance` is true, call `continue_chain` with that `session_id` and the
+returned `current_step_id` as `expected_step_id`. Eligibility is checked again
+under the runtime lock. There is no force or completion override. If a blocker
+is `summary_required`, use `generate_summary` for the listed session, then
+inspect again. Completion and role blockers must be resolved normally.
+
+Retry an uncertain request with the **same** expected step ID. A committed
+request returns its original receipt with `replayed: true`, without creating
+another session or sending the transition's notifications again. Inspect state
+again before advancing a different step, since normal automatic gates may have
+caught up further. Normal progression can reserve credits and email assigned
+roster participants. Platform metadata audit keys cannot advance a chain.
 
 ## Setup
 
@@ -121,6 +142,8 @@ Add the server to your AI tool's MCP config:
 | `reopen_session` | Reopen a completed session so participants can join or continue again |
 | `list_sessions` | Paginate sessions by status. Keys explicitly authorized by a current global admin can request platform-wide metadata; per-session content and mutations remain account-scoped. |
 | `get_session` | Get full details of a session (includes facilitation prompt) |
+| `get_chain_state` (hosted only) | Inspect stable chain/step/session IDs and actionable completion, role, and predecessor-summary blockers; requires origin-session owner/admin access |
+| `continue_chain` (hosted only) | Advance through the normal runtime using `session_id` and `expected_step_id`; owner/admin only, no force bypass, replay-safe with actor audit evidence |
 | `get_questions` | Get pre-session questions (data collection form) |
 | `get_responses` | Get participant responses |
 | `get_summary` | Get the AI-generated summary |
