@@ -86,6 +86,8 @@
               "POST /sessions",
               "GET /sessions",
               "GET /sessions/{id}",
+              "GET /sessions/{id}/chain-state",
+              "POST /sessions/{id}/continue-chain",
               "PATCH /sessions/{id}",
               "POST /sessions/{id}/close",
               "POST /sessions/{id}/reopen",

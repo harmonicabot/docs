@@ -29,6 +29,96 @@ components:
         Generate keys from your Harmonica dashboard settings.
 
   schemas:
+    ChainBlocker:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+          enum: [chain_not_active, step_not_active, invalid_snapshot, unassigned_roles, completion_not_met, summary_required]
+        message: { type: string }
+        step_id: { type: string }
+        session_id: { type: [string, 'null'] }
+    ChainStepState:
+      type: object
+      required: [step_id, step_index, template_step_id, session_id, status, title]
+      properties:
+        step_id: { type: string }
+        step_index: { type: integer }
+        template_step_id: { type: string }
+        session_id: { type: [string, 'null'] }
+        status:
+          type: string
+          enum: [pending, active, awaiting, completed, failed, skipped]
+        title: { type: string }
+    ChainControlState:
+      type: object
+      required: [chain_id, status, current_step_index, current_step_id, current_session_id, can_advance, blockers, completion_type, total_assignments, completed_assignments, required_assignments, timer_ready_at, steps]
+      properties:
+        chain_id: { type: string }
+        status:
+          type: string
+          enum: [pending, active, awaiting, paused, completed, failed, cancelled]
+        current_step_index: { type: integer }
+        current_step_id: { type: [string, 'null'] }
+        current_session_id: { type: [string, 'null'] }
+        can_advance:
+          type: boolean
+          description: Advisory snapshot; eligibility is rechecked under the chain lock when continuing.
+        blockers:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChainBlocker'
+        completion_type:
+          type: string
+          enum: [host_continue, all_submitted, timer, quorum, quorum_percent]
+        total_assignments: { type: integer }
+        completed_assignments: { type: integer }
+        required_assignments:
+          type: [integer, 'null']
+          description: Completion threshold for assignment-based gates; zero assignments still cannot complete an automatic gate.
+        timer_ready_at: { type: [string, 'null'], format: date-time }
+        steps:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChainStepState'
+    ChainHostAdvanceReceipt:
+      type: object
+      required: [chain_id, from_step_id, action, next_step_id, next_session_id, actor_id, auth_method, source, occurred_at, replayed]
+      properties:
+        chain_id: { type: string }
+        from_step_id: { type: string }
+        action:
+          type: string
+          enum: [advanced, closed]
+        next_step_id: { type: [string, 'null'] }
+        next_session_id: { type: [string, 'null'] }
+        actor_id: { type: string }
+        auth_method:
+          type: string
+          enum: [session, api_key]
+        source:
+          type: string
+          enum: [api, mcp]
+          description: Original committing transport; replay preserves the original actor and source.
+        occurred_at: { type: string, format: date-time }
+        replayed: { type: boolean }
+    ChainControlError:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+              enum: [forbidden, not_found, invalid_request, validation_error, stale_step, transition_blocked, advance_failed, internal_error]
+            message: { type: string }
+            blockers:
+              type: array
+              items:
+                $ref: '#/components/schemas/ChainBlocker'
     Session:
       type: object
       properties:
@@ -1703,6 +1793,101 @@ components:
               message: Rate limit exceeded. Try again in 30 seconds.
 
 paths:
+  /sessions/{id}/chain-state:
+    get:
+      operationId: getChainState
+      summary: Inspect host-authorized chain state and blockers
+      description: |
+        Inspect a chain using any of its session IDs. Requires owner/admin access
+        to the origin (step-zero) session; ownership of a later session or project
+        editor membership alone is insufficient. Returns stable chain, step and
+        session IDs without prompts, summaries, roster emails or participant text.
+        A read makes no state changes. can_advance is advisory; continue rechecks
+        eligibility under the existing runtime's chain lock.
+      tags: [Sessions]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Chain state and actionable blockers
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChainControlState'
+        '401': { description: Authentication required }
+        '403':
+          description: Owner or admin access to the origin required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChainControlError'
+        '404': { description: Session is not part of a chain or chain not found }
+        '500': { description: Internal error }
+  /sessions/{id}/continue-chain:
+    post:
+      operationId: continueChain
+      summary: Request guarded host chain progression
+      description: |
+        Requires owner/admin access to the origin session. Platform session
+        metadata audit keys cannot advance chains, even for a session they own.
+        Pass current_step_id from chain-state as expected_step_id. No force,
+        trigger override, credit-retry query option or completion bypass exists
+        in this API-key contract. Existing empty-body browser UI/internal calls
+        retain their legacy response contract and are not described here.
+
+        Completion/quorum/timer and role readiness use the normal runtime rules.
+        Missing predecessor summaries return summary_required blockers without
+        enqueueing work or changing state; generate those summaries through the
+        existing summary API/tool, then retry with the same expected step.
+        Rejected preconditions make no chain writes. A runtime handoff failure
+        retains the normal runtime pause behavior and returns advance_failed.
+
+        A committed transition stores actor/transport evidence atomically. A retry
+        of that expected step returns its original receipt with replayed=true,
+        without creating sessions/assignments or redispatching notifications.
+        The normal runtime may catch up additional already-complete automatic
+        steps; inspect chain-state again for the latest frontier. Normal progression
+        may reserve credits and email assigned roster participants.
+      tags: [Sessions]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [expected_step_id]
+              properties:
+                expected_step_id:
+                  type: string
+                  minLength: 1
+                  maxLength: 200
+      responses:
+        '200':
+          description: Original or replayed committed transition receipt
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChainHostAdvanceReceipt'
+        '400': { description: Invalid request body or unsupported query override }
+        '401': { description: Authentication required }
+        '403': { description: Origin owner/admin required or metadata audit key refused }
+        '404': { description: Session is not part of a chain or chain not found }
+        '409':
+          description: Stale step or unmet prerequisites or failed runtime handoff
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChainControlError'
+        '500': { description: Internal error }
   /me:
     get:
       summary: Get current user
