@@ -10,7 +10,8 @@ Harmonica documentation site built with [Mintlify](https://mintlify.com). Deploy
 
 ```bash
 npx mint dev             # Local preview at http://localhost:3000
-npx mint broken-links    # Validates openapi.yaml — the only reason to run it (see Publishing)
+npx mint validate        # Docs build and referenced OpenAPI check, when the CLI is available
+npx mint broken-links    # Separate internal-link check; not a substitute for build validation
 npx mint update          # Update Mintlify CLI
 ```
 
@@ -18,9 +19,11 @@ npx mint update          # Update Mintlify CLI
 
 Auto-deploys to production on push to the default branch via the [Mintlify GitHub app](https://dashboard.mintlify.com/settings/organization/github-app).
 
-**A broken build freezes the whole site silently.** Mintlify keeps serving the last successful build; any build failure (most often an invalid `api-reference/openapi.yaml`) fails with no error surfaced in the docs — pushed pages just never appear / 404. Classic trigger: an **inline YAML flow-mapping description with commas** — `'400': { description: Validation error (a, b, or c) }` parses the commas as key separators, so a word like `oversized` reads as an unexpected property and the spec fails OpenAPI validation. Quote the scalar: `{ description: 'Validation error (a, b, or c)' }`. Check locally with `npx mint broken-links` (the OpenAPI error prints at the top). This froze the site 2026-06-19 → 07-14 (~4 weeks, 11 failed builds) until one quote fixed it (`e5a1de0`).
+**A broken build freezes the whole site silently.** Mintlify keeps serving the last successful build; any build failure (most often an invalid `api-reference/openapi.yaml`) fails with no error surfaced in the docs — pushed pages just never appear / 404. Classic trigger: an **inline YAML flow-mapping description with commas** — `'400': { description: Validation error (a, b, or c) }` parses the commas as key separators, so a word like `oversized` reads as an unexpected property and the spec fails OpenAPI validation. Quote the scalar: `{ description: 'Validation error (a, b, or c)' }`. When an existing CLI is available, `npx mint validate` checks the documentation build, including referenced OpenAPI specifications. This froze the site 2026-06-19 → 07-14 (~4 weeks, 11 failed builds) until one quote fixed it (`e5a1de0`).
 
-**That OpenAPI error is the only useful thing `mint broken-links` reports.** Its link output is noise: as of 2026-07-28 it flags 77 broken links across 17 files and **all 77 are false positives.** It compares links written `/guides/hosts/chains` (correct, and the live URL) against `docs.json` entries written `guides/hosts/chains`, without normalising the leading slash, so every absolute internal link fails. Fragment-only links (`#anchor`) are unaffected. Treat the non-zero exit and the long link list as normal; read only the top of the output.
+**Keep verification proportional.** Reuse current-head Mintlify CI/build evidence before proposing a local run. YAML parsing, reference resolution, navigation checks, and canonical-spec parity establish structural correctness; they do not prove Mintlify publication. If the CLI is absent or CI skips publication, record **"Mintlify publication build not run"** and present that specific gap for explicit merge approval. An unavailable check is not a confirmed defect or a reason to start installing tooling. Any installation still needs explicit approval after explaining the changed artifact, concrete uncovered risk, existing evidence, and resource cost in plain language.
+
+**Link checks are separate.** Current [CLI documentation](https://github.com/mintlify/docs/blob/main/cli/commands.mdx) describes `mint broken-links` as an internal-link check, not the docs-build validator. Historical runs on 2026-07-28 reported 77 false positives caused by leading-slash differences between links and navigation entries. Inspect current findings rather than assuming all warnings are real or all are harmless.
 
 **It also cannot find dead pages.** A page absent from `docs.json` navigation is still built and publicly served. Eleven Mintlify scaffold files sat live for ~6 months this way, and only 3 ever appeared in any check — the 3 that happened to contain a broken link. All were removed 2026-07-28 (`bf2355a`, `d156248`, `a0ebbef`, `b17e90f`, and the commit adding this note), retiring `essentials/`, `snippets/` and `ai-tools/`. HAR-1436 tracks a replacement check that compares `.mdx` files on disk against the nav tree; note it must skip `"METHOD /path"` nav entries, which Mintlify generates from `openapi.yaml` rather than from files.
 
