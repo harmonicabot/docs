@@ -15,3 +15,9 @@ Session-by-session decisions for the Harmonica docs site. Append-only, newest la
 - **Decisions:** none — Pro is canonical, this repo mirrors.
 - **State:** In sync with Pro. Parity is now machine-enforced from Pro's CI across operations, schema names, property sets and enum values, so silent divergence is no longer possible.
 - **Next:** none. Note `raw.githubusercontent.com` trails a push by minutes; a parity red straight after a mirror push is CDN lag, verifiable via the GitHub API.
+
+## 2026-10-15 — Guides synced for v0.6.17 to v0.6.20
+- **Done:** `5d87759`: organizational-context describes the new onboarding questions and that the starter HARMONICA.md is written only into an empty file; templates rewrites Browsing templates (By goal / By methodology, source credits, Your templates, the project entry path); broad-listening covers held-back statements in Needs review.
+- **Decisions:** none.
+- **State:** live, checked on the raw `.md` pages. The chain-control API was already documented.
+- **Next:** none.
