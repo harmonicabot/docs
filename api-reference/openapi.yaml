@@ -437,6 +437,13 @@ components:
                     properties:
                       type: { type: string, enum: [quorum_percent] }
                       percent: { type: number, exclusiveMinimum: 0, maximum: 100 }
+                      require_host_until_all_submitted:
+                        type: boolean
+                        default: false
+                        description: >-
+                          Require host approval at the configured quorum and
+                          advance automatically only when all assignments complete.
+                          Hybrid handoff feedback uses completed canonical responses.
               dimension_ownership:
                 type: array
                 items: { type: string, minLength: 1 }
