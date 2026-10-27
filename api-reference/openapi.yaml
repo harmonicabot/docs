@@ -149,6 +149,9 @@ components:
           type: string
           nullable: true
           description: Structured SESSION.md brief (auto-generated after summary)
+        participant_links_enabled:
+          type: boolean
+          description: Whether pasted participant links can be read and added as shared sources. Defaults to true.
         participant_count:
           type: integer
         created_at:
@@ -2806,6 +2809,10 @@ paths:
             schema:
               type: object
               properties:
+                participant_links_enabled:
+                  type: boolean
+                  nullable: true
+                  description: Enable reading participant-pasted web links as shared session sources. Null restores the enabled default.
                 topic:
                   type: string
                 goal:
