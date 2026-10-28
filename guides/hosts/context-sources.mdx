@@ -61,6 +61,14 @@ Attach an MCP (Model Context Protocol) server via its URL. The facilitator conne
   MCP sources require a publicly reachable server URL. The facilitator connects on each participant turn, so latency and availability of your MCP server affects conversation speed. After five consecutive failures, a source is marked unhealthy and skipped until you reconnect it.
 </Note>
 
+### Links shared by participants
+
+When a participant pastes a web link into their conversation, Harmonica reads the page and uses it in its reply, up to two links per message. The page is also added to the session's sources, labelled **Shared by a participant**, so it can inform other participants' conversations too.
+
+- These sources don't count toward the 20-source limit.
+- Editors can remove them from the **Sources** tab on any plan.
+- To turn this off, switch off **Participants can share links** in the session's settings. It's on by default.
+
 ## Attach a context source
 
 <Steps>
