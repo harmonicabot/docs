@@ -21,3 +21,9 @@ Session-by-session decisions for the Harmonica docs site. Append-only, newest la
 - **Decisions:** none.
 - **State:** live, checked on the raw `.md` pages. The chain-control API was already documented.
 - **Next:** none.
+
+## 2026-10-28 — Participant links and Monica citations
+- **Done:** `3ec4c3d`: context-sources gains "Links shared by participants" (Pro #896); session-results gains "Asking Monica about results" with citations (Pro #897, #898). Labels and messages taken from the app's code.
+- **Decisions:** the assistant is named Monica in docs; the action is "Ask Monica".
+- **State:** live, checked on the raw `.md` pages; linked from changelog v0.6.22 and v0.6.24.
+- **Next:** an Encountering guide page once Phase 2 ships (HAR-1875).
