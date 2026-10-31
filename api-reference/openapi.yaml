@@ -35,7 +35,7 @@ components:
       properties:
         code:
           type: string
-          enum: [chain_not_active, step_not_active, invalid_snapshot, unassigned_roles, completion_not_met, summary_required]
+          enum: [chain_not_active, step_not_active, invalid_snapshot, unassigned_roles, completion_not_met, summary_required, no_participant_answers]
         message: { type: string }
         step_id: { type: string }
         session_id: { type: [string, 'null'] }
@@ -1849,7 +1849,8 @@ paths:
         retain their legacy response contract and are not described here.
 
         Completion/quorum/timer and role readiness use the normal runtime rules.
-        Missing predecessor summaries return summary_required blockers without
+        Empty current steps return no_participant_answers when the successor
+        needs a summary. Missing predecessor summaries return summary_required blockers without
         enqueueing work or changing state; generate those summaries through the
         existing summary API/tool, then retry with the same expected step.
         Rejected preconditions make no chain writes. A runtime handoff failure
@@ -3096,6 +3097,8 @@ paths:
         Regenerates the AI summary for the session and returns the refreshed
         summary. Requires editor role or above. May take up to ~90s for sessions
         with many participants (LARGE-tier synthesis).
+        With no included non-preview participant answers, returns status no_data,
+        a plain message, and null summary/generated_at without storing a summary.
       operationId: regenerateSessionSummary
       tags: [Sessions]
       parameters:
@@ -3114,6 +3117,13 @@ paths:
                   summary:
                     type: string
                     nullable: true
+                  status:
+                    type: string
+                    enum: [no_data]
+                    description: Present when there are no included participant answers to summarise.
+                  message:
+                    type: string
+                    description: Plain-language explanation of a no-data outcome.
                   generated_at:
                     type: string
                     format: date-time
