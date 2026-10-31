@@ -3117,6 +3117,13 @@ paths:
                   summary:
                     type: string
                     nullable: true
+                  status:
+                    type: string
+                    enum: [no_data]
+                    description: Present when there are no included participant answers to summarise.
+                  message:
+                    type: string
+                    description: Plain-language explanation of a no-data outcome.
                   generated_at:
                     type: string
                     format: date-time
