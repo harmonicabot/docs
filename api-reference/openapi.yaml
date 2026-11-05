@@ -243,6 +243,14 @@ components:
           allOf:
             - $ref: '#/components/schemas/SourceProvenance'
           description: Provenance for a template installed from the OFL method-specs registry; null for admin-authored templates (HAR-1108).
+        drift_status:
+          type: string
+          enum: [unchanged, modified, unverified]
+          description: Install-baseline status. Legacy single or unknown baselines are unverified.
+        current_content_hash:
+          type: string
+          pattern: '^[a-f0-9]{64}$'
+          description: Full current content fingerprint for a reviewed reinstall; not authorization or source authenticity.
         created_at:
           type: string
           format: date-time
@@ -260,7 +268,11 @@ components:
         registry: { type: string }
         install_hash:
           type: string
-          description: sha256 of the canonicalized chain_config as installed
+          description: SHA-256 of single-template content when hash_kind is single-template-v1; otherwise legacy chain_config only.
+        hash_kind:
+          type: string
+          enum: [single-template-v1]
+          description: Absent on legacy chain baselines. An absent tag never verifies a single baseline.
         installed_at:
           type: string
           format: date-time
@@ -362,7 +374,11 @@ components:
           required: [spec_id, spec_version, registry]
         force:
           type: boolean
-          description: Overwrite a template that has local edits since install (HAR-1108).
+          description: Explicit replacement of modified or unverified content. Single reinstalls and type conversions also require matching reviewed proof.
+        expected_content_hash:
+          type: string
+          pattern: '^[a-f0-9]{64}$'
+          description: Required with force for modified or unverified singles and source reinstall type conversions. Read current_content_hash, review that content, then submit its value. Concurrent changes refuse the write.
 
     ChainConfig:
       type: object
@@ -392,7 +408,7 @@ components:
                 type: string
               context_mode:
                 type: string
-                enum: [none, previous_summary, all_summaries, custom]
+                enum: [none, previous_summary, all_summaries]
               context_template:
                 type: string
               individual_memory:
@@ -903,6 +919,8 @@ components:
                 - roster_incomplete
                 - step_cap_exceeded
                 - project_cap_exceeded
+                - project_creation_failed
+                - bootstrap_failed
             chainInstanceId:
               type: string
               description: Present when status is started or resumed.
@@ -2061,8 +2079,8 @@ paths:
                 $ref: '#/components/schemas/Template'
         '400':
           description: >-
-            Validation error (no updatable fields), or the template has local
-            edits since install and `force` was not set (HAR-1108).
+            Validation error, prohibited scope/catalog changes during reinstall,
+            or missing/stale reviewed overwrite proof for modified or unverified content.
           content:
             application/json:
               schema:
@@ -2079,6 +2097,12 @@ paths:
                 $ref: '#/components/schemas/Error'
         '404':
           description: Template not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Template changed after the read or was removed. Read and review again; force never bypasses the conditional update.
           content:
             application/json:
               schema:
