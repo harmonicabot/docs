@@ -3220,23 +3220,37 @@ paths:
 
   /sessions/{id}/scratchpad:
     post:
-      summary: Seed or update scratchpad
+      summary: Seed, inspect or rebuild the listening map
       description: |
         Trigger cross-pollination scratchpad seeding or update for a session.
         The scratchpad tracks themes, emerging consensus, open tensions, and
-        well-covered questions across all participant conversations.
+        declared-question coverage from currently included conversations.
 
         **Modes:**
         - `seed` (default): Process all user messages from scratch. Resumes from
           existing progress if the session was partially seeded.
         - `update`: Process only new messages since the last update.
         - `status`: Return current scratchpad state without processing.
+          Includes `eligibility_digest` for an optimistic rebuild and `needs_rebuild`.
+        - `rebuild`: Discard the previous map, resume offset and accumulated
+          completeness. Requires the current `expectedEligibilityDigest` from status.
 
-        Cross-pollination must be enabled on the session. Requires editor role.
+        Requires editor role. The map is maintained regardless of cross-pollination;
+        that setting controls injection into participant conversations.
+        Changing response inclusion invalidates this map and maps seeded from it.
+        Legacy maps without input receipts and maps whose context sources changed
+        are withheld until deliberately refreshed. Context source versions are
+        checked before analysis, publication and use in participant prompts.
+        An automatic `update` cannot restart that backfill; request an explicit
+        `seed` or `rebuild`. Stale in-flight writes cannot restore removed input.
+        Referenced maps must be refreshed first. Session-reference cycles require
+        removing a reference in the cycle before rebuilding; cyclic reconstruction
+        is not supported.
 
         For large sessions, seeding may take multiple calls (up to 5 minutes per
         call). Each batch is persisted to the database, so partial progress
-        survives timeouts. Re-call the endpoint to continue.
+        survives timeouts. Processing stops at the first failed batch so the resume
+        offset never skips missing evidence. Re-call explicitly to continue.
       operationId: seedScratchpad
       tags: [Sessions]
       parameters:
@@ -3249,9 +3263,12 @@ paths:
               properties:
                 mode:
                   type: string
-                  enum: [seed, update, status]
+                  enum: [seed, update, status, rebuild]
                   default: seed
                   description: Processing mode
+                expectedEligibilityDigest:
+                  type: string
+                  description: Required for rebuild; use eligibility_digest from a fresh status response
       responses:
         '200':
           description: Scratchpad result
@@ -3262,11 +3279,12 @@ paths:
                 properties:
                   status:
                     type: string
-                    enum: [completed, partial, no_data, exists, empty]
+                    enum: [completed, partial, no_data, busy, exists, empty]
                     description: |
                       `completed` — all messages processed.
-                      `partial` — timed out, call again to continue.
+                      `partial` — a batch failed or processing is incomplete; request continuation explicitly.
                       `no_data` — no user messages in session.
+                      `busy` — another writer owns the current analysis claim.
                       `exists`/`empty` — status mode response.
                   themes:
                     type: integer
@@ -3280,9 +3298,15 @@ paths:
                   batches_total:
                     type: integer
                     description: Total batches needed for remaining messages
+                  eligibility_digest:
+                    type: string
+                    description: Opaque token identifying the captured conversation input and context inventory; returned in status mode
+                  needs_rebuild:
+                    type: boolean
+                    description: Stored map has no verified current input basis and requires deliberate refresh; returned in status mode
                 required: [status, themes, participants]
         '400':
-          description: Cross-pollination not enabled
+          description: Invalid JSON request body or unknown processing mode
           content:
             application/json:
               schema:
@@ -3290,14 +3314,19 @@ paths:
               example:
                 error:
                   code: validation_error
-                  message: Cross-pollination is not enabled for this session
+                  message: Unknown scratchpad mode
+        '409':
+          description: Included evidence changed or an explicit rebuild is required; no stale analysis is published
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
-
   /sessions/{id}/chat:
     post:
       summary: Send chat message
