@@ -3,11 +3,17 @@ title: "MCP Server"
 description: "Connect AI agents to Harmonica via Model Context Protocol"
 ---
 
-The [Harmonica MCP server](https://github.com/harmonicabot/harmonica-mcp) lets AI agents create and interact with deliberation sessions. Available on [npm](https://www.npmjs.com/package/harmonica-mcp).
+Harmonica MCP lets AI agents create and interact with deliberation sessions.
+The hosted endpoint in Harmonica Pro is the primary implementation and the
+recommended connection for new integrations.
 
 There are two ways to connect. The **hosted endpoint** needs nothing installed and is the
 simplest option for a client that supports remote MCP servers. The **npm package** runs
-locally over stdio and is what OSS and self-hosted instances use.
+locally over stdio for clients that require it and for OSS/self-hosted REST API
+instances. The [npm compatibility package](https://github.com/harmonicabot/harmonica-mcp)
+receives security and compatibility fixes; new MCP capabilities are developed in
+Pro and are not automatically backported. Existing local connections remain
+supported, with no deprecation date set.
 
 ## Hosted endpoint
 
@@ -26,20 +32,33 @@ Authorization: Bearer hm_live_your_key_here
 
 <CodeGroup>
 
-```bash Claude Code (CLI)
-claude mcp add --transport http harmonica \
-  https://app.harmonica.chat/api/mcp/mcp \
-  --header "Authorization: Bearer hm_live_your_key_here"
+```bash Claude Code (bash)
+claude mcp add-json harmonica '{"type":"http","url":"https://app.harmonica.chat/api/mcp/mcp","headers":{"Authorization":"Bearer ${HARMONICA_API_KEY}"}}' -s user
 ```
 
-```json Remote MCP config
+```json Claude Code config
 {
   "mcpServers": {
     "harmonica": {
       "type": "http",
       "url": "https://app.harmonica.chat/api/mcp/mcp",
       "headers": {
-        "Authorization": "Bearer hm_live_your_key_here"
+        "Authorization": "Bearer ${HARMONICA_API_KEY}"
+      }
+    }
+  }
+}
+```
+
+```json OpenCode V2 config
+{
+  "mcp": {
+    "servers": {
+      "harmonica": {
+        "type": "remote",
+        "url": "https://app.harmonica.chat/api/mcp/mcp",
+        "oauth": false,
+        "headers": { "Authorization": "Bearer {env:HARMONICA_API_KEY}" }
       }
     }
   }
@@ -47,6 +66,15 @@ claude mcp add --transport http harmonica \
 ```
 
 </CodeGroup>
+
+Load `HARMONICA_API_KEY` into the environment that starts your client and keep it
+available after restarting the client. These examples store a variable reference,
+not the key. Environment-reference syntax differs by client; the
+[Claude Code](https://code.claude.com/docs/en/mcp#environment-variable-expansion-in-mcp-json)
+and [OpenCode V2](https://opencode.ai/v2/docs/mcp-servers/) references document the
+respective syntax above. OpenCode V1 places `harmonica` directly under `mcp`
+instead of `mcp.servers`. Check the live connection in your client after setup;
+registration alone does not prove authentication works.
 
 Signing in with your Harmonica account instead of pasting a key is not available yet, so an
 API key is currently the only credential the hosted endpoint accepts.
@@ -74,7 +102,18 @@ again before advancing a different step, since normal automatic gates may have
 caught up further. Normal progression can reserve credits and email assigned
 roster participants. Platform metadata audit keys cannot advance a chain.
 
-## Setup
+## Standalone stdio setup (compatibility)
+
+Use this path when your client requires stdio or you connect to an OSS/self-hosted
+Harmonica REST API. It requires Node.js 20 or newer. For a self-hosted instance,
+set the server's `HARMONICA_API_URL` to its base URL without `/api/v1` (for example,
+`http://localhost:3000`). The npm adapter calls that instance's REST API.
+
+An existing stdio registration can stay in place. Switching to hosted MCP is an
+explicit configuration change: record the current configuration before replacing
+it, keep the account's key in your launch environment, and verify the hosted
+connection before removing the old setup. Point self-hosted clients at their own
+instance rather than switching them to Pro's hosted endpoint.
 
 ### 1. Get an API key
 
@@ -187,7 +226,7 @@ Once connected, try these prompts with your AI agent:
 If you use Claude Code, you can also install the [harmonica-chat](https://github.com/harmonicabot/harmonica-chat) slash command for designing, creating, and managing sessions:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/harmonicabot/harmonica-chat/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/harmonicabot/harmonica-chat/master/install.sh | bash
 ```
 
 Then run `/harmonica-chat` for guided session design, or `/harmonica-chat "Topic"` for quick creation.
