@@ -602,8 +602,6 @@ components:
         subscription_status:
           type: string
           enum: [FREE, PRO, ENTERPRISE]
-        atproto_identity:
-          $ref: '#/components/schemas/AtprotoIdentity'
         api_key:
           type: object
           properties:
@@ -619,29 +617,7 @@ components:
               type: string
               format: date-time
               nullable: true
-      required: [id, email, subscription_status, api_key, atproto_identity]
-
-    AtprotoIdentity:
-      type: object
-      description: Private verified identity for this account, also returned by MCP get_me. Linking and disconnecting require interactive web Settings; this does not grant community access or publish attribution.
-      required: [status, did, verified_at, settings_url, linking]
-      properties:
-        status:
-          type: string
-          enum: [connected, not_connected, unavailable]
-        did:
-          type: string
-          nullable: true
-        verified_at:
-          type: string
-          format: date-time
-          nullable: true
-        settings_url:
-          type: string
-          enum: ['/settings#atproto']
-        linking:
-          type: string
-          enum: [interactive_web_only]
+      required: [id, email, subscription_status, api_key]
 
     Pagination:
       type: object
@@ -1944,7 +1920,7 @@ paths:
   /me:
     get:
       summary: Get current user
-      description: Returns user info, API key metadata and the private verified ATProto association for the authenticated user. Association storage failures return status unavailable rather than claiming no identity is connected.
+      description: Returns user info and API key metadata for the authenticated user.
       operationId: getMe
       tags: [Account]
       responses:
