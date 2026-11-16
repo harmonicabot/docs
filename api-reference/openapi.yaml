@@ -29,6 +29,150 @@ components:
         Generate keys from your Harmonica dashboard settings.
 
   schemas:
+    StakeholderMapEntry:
+      type: object
+      additionalProperties: false
+      required: [id, label, influence, interest, stance, perspective, concerns, engagementProposal, evidenceCount, hostEditedFields]
+      description: A reported account, not a verified position or agreed engagement decision. Conflicting accounts may share a label.
+      properties:
+        id:
+          type: string
+          description: Opaque native entry identity, not a participant or source-message ID.
+        label:
+          type: string
+          maxLength: 300
+        influence:
+          type: [string, 'null']
+          enum: [low, medium, high, null]
+          description: Null means unknown and remains unplaced.
+        interest:
+          type: [string, 'null']
+          enum: [low, medium, high, null]
+        stance:
+          type: string
+          enum: [supportive, neutral, resistant, unknown]
+        perspective:
+          type: string
+          enum: [self_reported, reported_by_others, unclear]
+          description: Describes the recorded account; self_reported does not verify a named person's identity.
+        concerns:
+          type: array
+          maxItems: 20
+          items:
+            type: string
+            maxLength: 2000
+        engagementProposal:
+          type: [string, 'null']
+          maxLength: 4000
+          description: A reported proposal, without assigned responsibility or authorization to act.
+        evidenceCount:
+          type: integer
+          minimum: 0
+          description: Current supporting references, not votes. Public and participant entries always have at least one; an editor's saved review entry may have none.
+        hostEditedFields:
+          type: array
+          items:
+            type: string
+            enum: [label, influence, interest, stance, perspective, concerns, engagementProposal]
+        sourceStatus:
+          type: string
+          enum: [current, needs_review]
+          description: Editor-only review status; omitted from public and participant responses.
+        evidenceQuotes:
+          type: array
+          description: Editor-only source excerpts. Never included for public readers, community members or participants solely by virtue of that access.
+          items:
+            type: object
+            additionalProperties: false
+            required: [messageId, text]
+            properties:
+              messageId:
+                type: string
+              text:
+                type: string
+    StakeholderMapArtifact:
+      type: object
+      additionalProperties: false
+      required: [kind, schemaVersion, title, revision, generatedAt, sourceStatus, coverage, items]
+      properties:
+        kind:
+          type: string
+          enum: [stakeholder-engagement]
+        schemaVersion:
+          type: integer
+          enum: [1]
+        title:
+          type: [string, 'null']
+        revision:
+          type: integer
+          minimum: 0
+        generatedAt:
+          type: [integer, 'null']
+          description: Unix epoch milliseconds of the latest successful extraction; null before generation.
+        sourceStatus:
+          type: string
+          enum: [current, changed, not_generated]
+          description: Changed source answers withhold public and participant items until regeneration. Editors can inspect explicitly flagged saved content.
+        coverage:
+          type: [object, 'null']
+          additionalProperties: false
+          description: Safe counts from the latest extraction, without source identities or fingerprints. Null before generation; partial coverage must not imply all perspectives were reviewed.
+          required: [eligibleMessages, extractedMessages]
+          properties:
+            eligibleMessages:
+              type: integer
+              minimum: 0
+            extractedMessages:
+              type: integer
+              minimum: 0
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/StakeholderMapEntry'
+    StakeholderMapResponse:
+      type: object
+      additionalProperties: false
+      required: [artifact, canEdit, canRegenerate]
+      properties:
+        artifact:
+          $ref: '#/components/schemas/StakeholderMapArtifact'
+        canEdit:
+          type: boolean
+        canRegenerate:
+          type: boolean
+        review:
+          type: object
+          additionalProperties: false
+          description: Editor-only source/current-state fence for the host correction UI; omitted for other readers.
+          required: [editToken, coverage]
+          properties:
+            editToken:
+              type: string
+              pattern: '^[a-f0-9]{64}$'
+            coverage:
+              type: object
+              additionalProperties: false
+              required: [eligibleMessages, extractedMessages, sourceFingerprint]
+              properties:
+                eligibleMessages:
+                  type: integer
+                  minimum: 0
+                extractedMessages:
+                  type: integer
+                  minimum: 0
+                sourceFingerprint:
+                  type: string
+                  pattern: '^[a-f0-9]{64}$'
+    StakeholderMapError:
+      type: object
+      additionalProperties: false
+      required: [error, code]
+      properties:
+        error:
+          type: string
+        code:
+          type: string
+          enum: [not_found, host_only, participants_only, community_gated, private_results, editor_required, summary_required, no_participant_answers, invalid_request, stakeholder_changed, internal_error]
     ChainBlocker:
       type: object
       required: [code, message]
@@ -1871,6 +2015,119 @@ components:
               message: Rate limit exceeded. Try again in 30 seconds.
 
 paths:
+  /sessions/{id}/stakeholders:
+    get:
+      summary: Read the stakeholder engagement map
+      operationId: getStakeholderMap
+      tags: [Sessions]
+      security:
+        - {}
+        - apiKey: []
+      description: |
+        Available only for standalone Stakeholder Analysis sessions. Reading never
+        generates a map. A never-generated map returns an empty artifact.
+        Public sessions permit anonymous reads. Host-only sessions require owner
+        or admin access; participant sessions also permit editors or a finished
+        non-preview participant's thread_id. Community sessions additionally
+        permit a verified signed-in member of the session's bound community;
+        API-key account emails are not verified community identities.
+        Private evidence quotes and review metadata require editor access and
+        admission to the results audience. Map responses use private, no-store.
+      parameters:
+        - $ref: '#/components/parameters/sessionId'
+        - name: thread_id
+          in: query
+          required: false
+          description: Finished non-preview participant proof scoped to this session.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Safe map, with additional review fields only for authorized editors.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StakeholderMapResponse'
+        '403':
+          description: Audience denied; community denial uses community_gated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StakeholderMapError'
+        '404':
+          description: Session absent or not a supported standalone Stakeholder Analysis session.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StakeholderMapError'
+        '500':
+          description: The map could not be loaded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StakeholderMapError'
+    post:
+      summary: Regenerate the stakeholder engagement map
+      operationId: regenerateStakeholderMap
+      tags: [Sessions]
+      description: |
+        Requires editor access or above and admission to the results audience
+        (owner or admin for host-only sessions). Send an empty body or {}.
+        Extracts reported accounts from included non-preview authored answers,
+        preserving host-corrected fields. A real summary is required. No answers
+        means no model call and no map write. A source change during generation
+        returns 409 without replacing the saved state. Existing sessions are not
+        backfilled; a future summary or this explicit action generates their map.
+      parameters:
+        - $ref: '#/components/parameters/sessionId'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              maxProperties: 0
+      responses:
+        '200':
+          description: Regenerated map with authorized editor review fields.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StakeholderMapResponse'
+        '400':
+          description: Invalid body, missing real summary or no included participant answers.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StakeholderMapError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: Editor role or results-audience access is missing.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StakeholderMapError'
+        '404':
+          description: Session absent or not a supported standalone Stakeholder Analysis session.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StakeholderMapError'
+        '409':
+          description: Map source or state changed; reload before regenerating.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StakeholderMapError'
+        '500':
+          description: The map could not be generated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StakeholderMapError'
+
   /sessions/{id}/chain-state:
     get:
       operationId: getChainState

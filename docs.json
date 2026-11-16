@@ -96,6 +96,8 @@
               "POST /sessions/{id}/responses",
               "GET /sessions/{id}/session-md",
               "GET /sessions/{id}/summary",
+              "GET /sessions/{id}/stakeholders",
+              "POST /sessions/{id}/stakeholders",
               "POST /sessions/{id}/knowledge",
               "POST /sessions/{id}/scratchpad",
               "POST /sessions/{id}/chat",
