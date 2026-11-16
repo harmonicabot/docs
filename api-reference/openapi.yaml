@@ -1457,6 +1457,8 @@ components:
         workspace_id:
           type: string
           format: uuid
+        public_artifacts:
+          $ref: '#/components/schemas/SensemakingSettingsRequest/properties/publicArtifacts'
         enabled:
           type: boolean
         slug:
