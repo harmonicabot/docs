@@ -1427,6 +1427,30 @@ components:
           type: boolean
           description: Source opinion-map statements from project knowledge.
 
+        publicArtifacts:
+          type: array
+          nullable: true
+          uniqueItems: true
+          description: >-
+            Explicit native artifact instances on the broad-listening page.
+            Omit to preserve; null or [] clears. No implicit selection.
+            Every selected instance must belong to this Project and have public
+            source sessions. Selection never widens source access.
+            Available after the topic-artifact selection rollout.
+          items:
+            type: object
+            additionalProperties: false
+            required: [kind, ref]
+            properties:
+              kind:
+                type: string
+                enum: [wardley, sixhats, cynefin, swot]
+              ref:
+                type: string
+                minLength: 1
+                pattern: '\S'
+                description: Exact chain-instance ID, or session ID for SWOT.
+
     SensemakingTopic:
       type: object
       properties:
