@@ -1950,6 +1950,8 @@ components:
                 - rate_limited
                 - payment_required
                 - transcript_revision_changed
+                - needs_rebuild
+                - source_changed
                 - internal_error
                 - unprocessable
             message:
