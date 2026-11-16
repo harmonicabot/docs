@@ -20,9 +20,9 @@ Harmonica supports API keys from these providers:
 
 | Provider | Example models | Notes |
 |----------|---------------|-------|
-| **OpenAI** | GPT-4o, GPT-4o mini, GPT-5 | Most widely used |
-| **Anthropic** | Claude Sonnet 4.6, Claude Haiku | High quality facilitation |
-| **Google** | Gemini 2.5 Flash, Gemini 3.1 Pro | Good balance of speed and quality |
+| **OpenAI** | GPT-6 Luna, GPT-6.1 Terra, GPT-6.1 Sol | Most widely used |
+| **Anthropic** | Claude Haiku 5.5, Claude Sonnet 5.5 | High quality facilitation |
+| **Google** | Gemini 3.5 Flash-Lite, Gemini 3.8 Flash, Gemini 3.1 Pro | Good balance of speed and quality |
 | **Ollama** | Llama, Mistral, Qwen | Local models, fully offline |
 | **OpenAI-compatible** | Any provider with an OpenAI-compatible API | Custom base URL supported |
 
@@ -51,7 +51,7 @@ If you are on the Lifetime Deal (LTD) plan, BYOM is required to create sessions.
     - **Medium** — main facilitation conversations
     - **Large** — summaries, synthesis, and complex analysis
 
-    Choose which of your available models to use for each tier.
+    Choose which of your available models to use for each tier. Harmonica recommends GPT-6 Luna for Small and GPT-6.1 Terra for Medium and Large with an OpenAI key, and Claude Haiku 5.5 for Small and Medium and Claude Sonnet 5.5 for Large with an Anthropic key. A cheaper model can also be chosen for a higher tier.
   </Step>
 
   <Step title="Create sessions as usual">
@@ -65,12 +65,23 @@ Even without BYOM, Harmonica provides platform models:
 
 | Model | Provider | Tier | Available on Free plan |
 |-------|----------|------|----------------------|
-| GPT-4o mini | OpenAI | Small | Yes |
-| Gemini 2.5 Flash | Google | Small / Medium / Large | Yes |
-| Apertus 70B | PublicAI (Swiss AI) | Small / Medium | Yes |
+| Gemini 2.5 Flash-Lite | Google | Small | Yes |
+| Gemini 3.5 Flash-Lite | Google | Small / Medium / Large | Yes |
+| Claude Haiku 5.5 | Anthropic | Small / Medium | Medium only |
+| Apertus 1.5 70B | PublicAI (Swiss AI) | Small / Medium / Large | Yes |
+| GPT-6 Luna | OpenAI | Small | Pro only |
+| Claude Haiku 4.5 | Anthropic | Small / Medium | Pro only |
+| GPT-6.1 Terra | OpenAI | Medium / Large | Pro only |
+| Gemini 3.8 Flash | Google | Medium / Large | Pro only |
+| Claude Sonnet 5.5 | Anthropic | Medium / Large | Pro only |
 | Claude Sonnet 4.6 | Anthropic | Medium / Large | Pro only |
-| GPT-5 | OpenAI | Medium / Large | Pro only |
-| Gemini 3.1 Pro | Google | Medium / Large | Pro only |
+| Gemini 3.1 Pro | Google | Large | Pro only |
+
+If you haven't chosen models, Harmonica uses Claude Haiku 5.5 for Medium on every plan. Free accounts use Gemini 2.5 Flash-Lite for Small and Gemini 3.5 Flash-Lite for Large. Paid accounts use GPT-6 Luna for Small and Gemini 3.1 Pro for Large.
+
+### Retiring models
+
+When a provider retires a model, Settings → AI Models stops offering it for new choices. A saved choice keeps working until the provider's shutdown date, then moves to a successor: GPT-6 Luna for Small and GPT-6.1 Terra for Medium and Large on OpenAI, and the 5.5 version of a retired Claude Haiku or Sonnet model. Settings show the replacement, the date and the cost change. If a retired model has no successor, you choose a new one.
 
 BYOM gives you access to any model from any supported provider, regardless of your Harmonica plan.
 
