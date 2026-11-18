@@ -207,6 +207,8 @@ Like an individual session, a whole project can carry **context sources** — re
 
 A **Team OS** project can also connect a GitHub repository from its Memory record, so your own documentation feeds every session in the project. See [GitHub repositories](/guides/hosts/context-sources#github-repositories).
 
+Integrations can attach a session's SESSION.md snapshot as a shared project source through `POST /projects/{id}/context-sources/session` in the [REST API](/api-reference/introduction). This adds context without moving the source session into the project.
+
 The project view also lists the sources attached to individual sessions inside it (read-only), so you can see the full body of material feeding the project's knowledge in one place.
 
 See [Context sources](/guides/hosts/context-sources) for the available source types and limits.

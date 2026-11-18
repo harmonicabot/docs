@@ -4781,10 +4781,11 @@ paths:
     post:
       summary: Reference a session as a project context source
       description: |
-        Snapshot another session's SESSION.md and attach it at the project level.
-        Requires editor access on the project and viewer access on the source session.
-        Shares the independent 20-source static project allowance with ordinary files.
-        Requires a Pro, LTD, or ENTERPRISE subscription.
+        Attach a snapshot of another session's SESSION.md as shared context for the project. The source session stays in its current project, and changes to its SESSION.md do not automatically update the copy.
+
+        Use a Harmonica API key with editor access on the destination project and viewer access on the source session. The account must have context-source access (Pro, LTD, or Enterprise). The source needs a SESSION.md eligible to be copied under the source session's current sharing and contribution settings.
+
+        This REST operation is available to integrations. To add a reference to one session in the app, use its Sources panel. Project-wide references share the project's 20-source static allowance with ordinary files.
       operationId: addProjectContextSourceSession
       tags: [Context Sources]
       parameters:
@@ -4803,12 +4804,17 @@ paths:
                 source_ref:
                   type: string
                   description: ID of the session whose SESSION.md to snapshot.
-                title: { type: string }
+                title:
+                  type: string
+                  description: Display title. Defaults to the source session's topic or ID.
+            example:
+              source_ref: hst_source_session
+              title: Prior workshop brief
       responses:
-        '201': { description: Context source created }
-        '400': { description: Validation error (missing source_ref or source has no SESSION.md) }
+        '201': { description: Project context source created. Returns its ID and metadata. }
+        '400': { description: 'Invalid request or source SESSION.md unavailable for copying' }
         '401': { $ref: '#/components/responses/Unauthorized' }
-        '403': { description: No access to project or source session }
+        '403': { description: 'Insufficient project permissions, source permissions, or context-source access' }
         '422': { description: Static source limit reached (20 per project) }
   /projects/{id}/context-sources/mcp:
     post:
