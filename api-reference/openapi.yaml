@@ -465,7 +465,7 @@ components:
       properties:
         code:
           type: string
-          enum: [chain_not_active, step_not_active, invalid_snapshot, unassigned_roles, completion_not_met, summary_required, no_participant_answers, bmc_source_missing, bmc_extraction_pending, bmc_extraction_failed, bmc_source_changed, bmc_review_required, bmc_snapshot_missing]
+          enum: [chain_not_active, step_not_active, invalid_snapshot, unassigned_roles, completion_not_met, summary_required, summary_preparing, no_participant_answers, bmc_source_missing, bmc_extraction_pending, bmc_extraction_failed, bmc_source_changed, bmc_review_required, bmc_snapshot_missing]
         message: { type: string }
         step_id: { type: string }
         session_id: { type: [string, 'null'] }
@@ -495,6 +495,9 @@ components:
         can_advance:
           type: boolean
           description: Advisory snapshot; eligibility is rechecked under the chain lock when continuing.
+        can_start_summary:
+          type: boolean
+          description: The chain can accept Continue and prepare sealed feedback before advancing.
         blockers:
           type: array
           items:
@@ -2704,9 +2707,12 @@ paths:
 
         Completion/quorum/timer and role readiness use the normal runtime rules.
         Empty current steps return no_participant_answers when the successor
-        needs a summary. Missing predecessor summaries return summary_required blockers without
-        enqueueing work or changing state; generate those summaries through the
-        existing summary API/tool, then retry with the same expected step.
+        needs a summary. On newly launched roster chains, can_start_summary
+        signals that Continue can accept the round and start preparing sealed
+        feedback. A 202 response means the chain is preparing feedback. Poll
+        chain-state or replay the same expected step to retrieve the completed
+        receipt. On other runs, generate missing summaries separately before
+        retrying the same expected step.
         Rejected preconditions make no chain writes. A runtime handoff failure
         retains the normal runtime pause behavior and returns advance_failed.
 
@@ -2742,6 +2748,17 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ChainHostAdvanceReceipt'
+        '202':
+          description: Sealed feedback is being prepared
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [action, chain_id, from_step_id]
+                properties:
+                  action: { type: string, enum: [waiting_for_summary] }
+                  chain_id: { type: string }
+                  from_step_id: { type: string }
         '400': { description: Invalid request body or unsupported query override }
         '401': { description: Authentication required }
         '403': { description: Origin owner/admin required or metadata audit key refused }
